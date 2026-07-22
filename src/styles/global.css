@@ -1,0 +1,240 @@
+/* ============================================================
+   PULSE — Fitness landing page design system
+   Dark mode · bold · energetic
+   ============================================================ */
+
+:root {
+  /* Surfaces */
+  --bg: #08080b;
+  --bg-elev: #111116;
+  --bg-elev-2: #181820;
+  --bg-elev-3: #20202a;
+
+  /* Text */
+  --text: #ffffff;
+  --text-muted: #9a9aa8;
+  --text-dim: #6a6a78;
+
+  /* Brand energy colors */
+  --lime: #d4ff3a;      /* signature electric lime */
+  --lime-deep: #aee600;
+  --orange: #ff5a2c;    /* hot CTA */
+  --pink: #ff2e88;      /* power accent */
+  --blue: #2ee6ff;      /* cool accent */
+  --violet: #8b5cf6;
+
+  /* Status */
+  --good: #4ade80;
+  --warn: #fbbf24;
+
+  /* Lines */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Effects */
+  --ring: 0 0 0 1px var(--border);
+  --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+  --glow-lime: 0 0 40px rgba(212, 255, 58, 0.35);
+  --glow-orange: 0 0 40px rgba(255, 90, 44, 0.4);
+
+  /* Type */
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --display: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+
+  /* Layout */
+  --maxw: 1200px;
+  --gut: clamp(20px, 5vw, 48px);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-lg: 28px;
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+* { margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+ul { list-style: none; }
+
+::selection { background: var(--lime); color: #000; }
+
+/* ---------- Layout helpers ---------- */
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding-inline: var(--gut);
+}
+
+.section { padding-block: clamp(72px, 10vw, 128px); position: relative; }
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lime);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  background: var(--lime);
+  display: inline-block;
+}
+
+.section-title {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin-top: 16px;
+}
+.section-title em {
+  font-style: normal;
+  background: linear-gradient(100deg, var(--lime), var(--blue));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.section-lead {
+  color: var(--text-muted);
+  font-size: clamp(16px, 2vw, 18px);
+  max-width: 56ch;
+  margin-top: 18px;
+}
+
+.section-head { margin-bottom: 56px; max-width: 720px; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  --btn-bg: var(--lime);
+  --btn-fg: #08080b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 26px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  white-space: nowrap;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+
+.btn--primary {
+  --btn-bg: var(--lime);
+  --btn-fg: #08080b;
+  box-shadow: var(--glow-lime);
+}
+.btn--primary:hover { box-shadow: 0 0 56px rgba(212, 255, 58, 0.55); }
+
+.btn--orange {
+  --btn-bg: var(--orange);
+  --btn-fg: #fff;
+  box-shadow: var(--glow-orange);
+}
+
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-fg: var(--text);
+  border: 1px solid var(--border-strong);
+  box-shadow: none;
+}
+.btn--ghost:hover { background: var(--bg-elev-2); border-color: var(--text-muted); }
+
+.btn--lg { padding: 17px 32px; font-size: 16px; }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+/* ---------- Chips / tags ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.chip--lime { background: rgba(212, 255, 58, 0.12); color: var(--lime); border-color: rgba(212, 255, 58, 0.3); }
+.chip--orange { background: rgba(255, 90, 44, 0.14); color: var(--orange); border-color: rgba(255, 90, 44, 0.32); }
+.chip--pink { background: rgba(255, 46, 136, 0.14); color: var(--pink); border-color: rgba(255, 46, 136, 0.32); }
+.chip--blue { background: rgba(46, 230, 255, 0.14); color: var(--blue); border-color: rgba(46, 230, 255, 0.32); }
+
+/* ---------- Decorative grid background ---------- */
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---------- Reveal on scroll ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.is-visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* ---------- Responsive base ---------- */
+@media (max-width: 640px) {
+  body { font-size: 15px; }
+}

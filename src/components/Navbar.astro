@@ -1,0 +1,168 @@
+---
+const links = [
+  { href: "#workouts", label: "Workouts" },
+  { href: "#progress", label: "Progress" },
+  { href: "#coaches", label: "Coaches" },
+  { href: "#pricing", label: "Pricing" },
+];
+---
+
+<header class="nav">
+  <div class="container nav__inner">
+    <a href="#top" class="brand" aria-label="PULSE home">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="28" height="28">
+          <path
+            d="M3 18 L9 18 L12 8 L17 26 L20 13 L22 18 L29 18"
+            fill="none" stroke="currentColor" stroke-width="2.6"
+            stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </span>
+      <span class="brand__name">PULSE</span>
+    </a>
+
+    <nav class="nav__links" aria-label="Primary">
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+
+    <div class="nav__cta">
+      <a href="#pricing" class="nav__signin">Sign in</a>
+      <a href="#pricing" class="btn btn--primary">Get the app</a>
+    </div>
+
+    <button class="nav__burger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="nav__mobile" hidden>
+    {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    <a href="#pricing" class="btn btn--primary" style="margin-top:8px;justify-content:center">Get the app</a>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(8, 8, 11, 0.72);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    gap: 24px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    font-size: 19px;
+  }
+  .brand__mark {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(140deg, rgba(212,255,58,0.18), rgba(212,255,58,0.04));
+    border: 1px solid rgba(212, 255, 58, 0.35);
+    color: var(--lime);
+  }
+
+  .nav__links {
+    display: flex;
+    gap: 30px;
+    margin-left: auto;
+    margin-right: 12px;
+  }
+  .nav__links a {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: color 0.18s ease;
+    position: relative;
+  }
+  .nav__links a:hover { color: var(--text); }
+  .nav__links a::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: -6px;
+    width: 0; height: 2px;
+    background: var(--lime);
+    transition: width 0.2s ease;
+  }
+  .nav__links a:hover::after { width: 100%; }
+
+  .nav__cta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .nav__signin {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+  .nav__signin:hover { color: var(--text); }
+
+  .nav__burger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px;
+  }
+  .nav__burger span {
+    width: 22px; height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .nav__mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px var(--gut) 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .nav__mobile a {
+    padding: 14px 4px;
+    font-size: 17px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  @media (max-width: 860px) {
+    .nav__links, .nav__cta { display: none; }
+    .nav__burger { display: flex; }
+  }
+  @media (min-width: 861px) {
+    .nav__mobile { display: none !important; }
+  }
+</style>
+
+<script>
+  const burger = document.querySelector(".nav__burger");
+  const mobile = document.querySelector(".nav__mobile");
+  burger?.addEventListener("click", () => {
+    const open = mobile?.hasAttribute("hidden");
+    if (open) {
+      mobile?.removeAttribute("hidden");
+      burger.setAttribute("aria-expanded", "true");
+    } else {
+      mobile?.setAttribute("hidden", "");
+      burger.setAttribute("aria-expanded", "false");
+    }
+  });
+</script>

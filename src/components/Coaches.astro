@@ -1,0 +1,128 @@
+---
+import { coaches } from "../data/site";
+
+const accentVar = {
+  lime: "var(--lime)",
+  orange: "var(--orange)",
+  pink: "var(--pink)",
+  blue: "var(--blue)",
+};
+---
+
+<section class="section" id="coaches">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">The team</span>
+      <h2 class="section-title">Coaches who've <em>been there.</em></h2>
+      <p class="section-lead">
+        Not influencers. Not avatars. Real coaches with decades of combined experience
+        coaching everyone from first-timers to national-level athletes.
+      </p>
+    </div>
+
+    <div class="coaches-grid">
+      {coaches.map((c) => (
+        <article class="card coach reveal" style={`--accent:${accentVar[c.accent]}`}>
+          <div class="coach__photo" aria-hidden="true">
+            <div class="coach__photo-bg"></div>
+            <span class="coach__initials">{c.initials}</span>
+            <span class="coach__cred">{c.cred}</span>
+          </div>
+          <div class="coach__body">
+            <h3 class="coach__name">{c.name}</h3>
+            <div class="coach__role">{c.role}</div>
+            <div class="coach__spec">{c.specialty}</div>
+            <div class="coach__meta">
+              <span><strong>{c.years}</strong> yrs</span>
+              <span class="dot-sep" aria-hidden="true"></span>
+              <span class="coach__follow">Follow</span>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .coaches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .coach {
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .coach:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+
+  .coach__photo {
+    position: relative;
+    aspect-ratio: 1;
+    display: grid; place-items: center;
+    overflow: hidden;
+  }
+  .coach__photo-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--accent) 55%, transparent), transparent 65%),
+      linear-gradient(160deg, #1a1a24, #0b0b10);
+  }
+  .coach__initials {
+    position: relative; z-index: 1;
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 64px;
+    letter-spacing: -0.04em;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+  .coach__cred {
+    position: absolute; bottom: 12px; right: 12px;
+    z-index: 1;
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 700;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent);
+  }
+
+  .coach__body { padding: 18px 20px 20px; }
+  .coach__name {
+    font-size: 19px; font-weight: 800; letter-spacing: -0.02em;
+  }
+  .coach__role {
+    font-size: 13px; color: var(--accent);
+    font-weight: 600; margin-top: 2px;
+  }
+  .coach__spec {
+    font-size: 13px; color: var(--text-muted); margin-top: 8px;
+  }
+  .coach__meta {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 16px; padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: 13px; color: var(--text-muted);
+  }
+  .coach__meta strong { color: var(--text); font-weight: 700; }
+  .dot-sep {
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--text-dim);
+  }
+  .coach__follow {
+    margin-left: auto;
+    font-weight: 700;
+    color: var(--accent);
+    cursor: pointer;
+    transition: opacity 0.18s ease;
+  }
+  .coach__follow:hover { opacity: 0.75; }
+</style>

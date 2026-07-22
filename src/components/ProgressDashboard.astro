@@ -1,0 +1,381 @@
+---
+import { weeklyData, goals } from "../data/site";
+
+const maxKcal = Math.max(...weeklyData.map((d) => d.kcal));
+const totalKcal = weeklyData.reduce((a, b) => a + b.kcal, 0);
+const totalMins = weeklyData.reduce((a, b) => a + b.mins, 0);
+
+const accentVar = {
+  lime: "var(--lime)",
+  orange: "var(--orange)",
+  blue: "var(--blue)",
+};
+---
+
+<section class="section progress" id="progress">
+  <div class="progress__glow" aria-hidden="true"></div>
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">See the work</span>
+      <h2 class="section-title">Progress that <em>stares back at you.</em></h2>
+      <p class="section-lead">
+        Every rep, every calorie, every minute — tracked automatically and visualized
+        so you can't hide from your own consistency. Below is a live demo of the
+        in-app dashboard.
+      </p>
+    </div>
+
+    <div class="dash reveal">
+      <!-- Left: chart + chart controls -->
+      <div class="dash__panel dash__main">
+        <div class="dash__head">
+          <div>
+            <span class="dash__label">This week</span>
+            <div class="dash__big">{totalKcal.toLocaleString()} <span>kcal</span></div>
+          </div>
+          <div class="dash__toggle" role="tablist" aria-label="Metric">
+            <button class="seg is-active" data-metric="kcal">Calories</button>
+            <button class="seg" data-metric="mins">Minutes</button>
+          </div>
+        </div>
+
+        <div class="chart" role="img" aria-label="Weekly activity bar chart">
+          {weeklyData.map((d) => (
+            <div class="chart__col">
+              <div class="chart__bar-wrap">
+                <div
+                  class="chart__bar"
+                  data-kcal={d.kcal}
+                  data-mins={d.mins}
+                  style={`--pct-kcal:${(d.kcal / maxKcal) * 100}%; --pct-mins:${(d.mins / 60) * 100}%`}
+                >
+                  <span class="chart__val" data-kcal-val={`${d.kcal}`} data-mins-val={`${d.mins}m`}>
+                    {d.kcal === 0 ? "rest" : d.kcal}
+                  </span>
+                </div>
+              </div>
+              <span class="chart__day">{d.day}</span>
+            </div>
+          ))}
+        </div>
+
+        <div class="dash__foot">
+          <div class="dash__foot-item">
+            <span class="dash__foot-k">{totalMins}</span>
+            <span class="dash__foot-l">active min</span>
+          </div>
+          <div class="dash__foot-item">
+            <span class="dash__foot-k">6</span>
+            <span class="dash__foot-l">workouts</span>
+          </div>
+          <div class="dash__foot-item">
+            <span class="dash__foot-k dash__foot-k--up">+18%</span>
+            <span class="dash__foot-l">vs last week</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: goal rings -->
+      <div class="dash__panel dash__side">
+        <span class="dash__label">Weekly goals</span>
+        <div class="rings">
+          {goals.map((g) => {
+            const pct = Math.round((g.value / g.target) * 100);
+            const r = 42;
+            const circ = 2 * Math.PI * r;
+            const offset = circ - (pct / 100) * circ;
+            return (
+              <div class="ring" style={`--accent:${accentVar[g.accent]}`}>
+                <svg viewBox="0 0 100 100" class="ring__svg">
+                  <circle cx="50" cy="50" r={r} class="ring__track"/>
+                  <circle
+                    cx="50" cy="50" r={r}
+                    class="ring__progress"
+                    style={`stroke-dasharray:${circ}; stroke-dashoffset:${offset}`}
+                    data-target-offset={offset}
+                  />
+                </svg>
+                <div class="ring__center">
+                  <span class="ring__pct" data-pct={pct}>0%</span>
+                  <span class="ring__unit">{g.unit}</span>
+                </div>
+                <span class="ring__label">{g.label}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div class="streak">
+          <div class="streak__icon" aria-hidden="true">🔥</div>
+          <div>
+            <div class="streak__num">47 day streak</div>
+            <div class="streak__sub">Personal record. Keep it alive.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .progress { position: relative; overflow: hidden; }
+  .progress__glow {
+    position: absolute;
+    top: 20%; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(46, 230, 255, 0.12), transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+  .dash {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+  }
+  .dash__panel {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+  }
+  .dash__label {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+  }
+
+  .dash__head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 32px;
+  }
+  .dash__big {
+    font-size: clamp(32px, 4vw, 44px);
+    font-weight: 800; letter-spacing: -0.03em;
+    margin-top: 6px;
+  }
+  .dash__big span {
+    font-size: 0.5em; color: var(--text-muted); font-weight: 600; margin-left: 4px;
+  }
+
+  .dash__toggle {
+    display: inline-flex;
+    background: var(--bg-elev-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .seg {
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.18s ease;
+  }
+  .seg.is-active {
+    background: var(--lime); color: #08080b;
+  }
+
+  /* Chart */
+  .chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+    height: 220px;
+    padding-bottom: 4px;
+  }
+  .chart__col {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 10px;
+    height: 100%;
+  }
+  .chart__bar-wrap {
+    flex: 1;
+    width: 100%;
+    display: flex; align-items: flex-end; justify-content: center;
+    max-width: 56px;
+  }
+  .chart__bar {
+    width: 100%;
+    height: var(--pct-kcal);
+    background: linear-gradient(180deg, var(--lime), rgba(212, 255, 58, 0.25));
+    border-radius: 8px 8px 4px 4px;
+    position: relative;
+    transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                background 0.3s ease,
+                opacity 0.3s ease;
+    min-height: 4px;
+  }
+  .dash[data-metric="mins"] .chart__bar { height: var(--pct-mins); }
+  .chart__val {
+    position: absolute;
+    top: -22px; left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 700;
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+  }
+  .chart__bar:hover .chart__val,
+  .chart__col:hover .chart__val { opacity: 1; }
+  .chart__day {
+    font-family: var(--mono);
+    font-size: 11px; color: var(--text-dim);
+  }
+  .chart__bar[data-kcal="0"] { opacity: 0.3; }
+
+  .dash__foot {
+    display: flex; gap: 40px;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+  }
+  .dash__foot-item { display: flex; flex-direction: column; gap: 2px; }
+  .dash__foot-k {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+  }
+  .dash__foot-k--up { color: var(--good); }
+  .dash__foot-l {
+    font-size: 12px; color: var(--text-muted);
+    font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  /* Side panel — rings */
+  .dash__side { display: flex; flex-direction: column; }
+  .rings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin: 22px 0 22px;
+  }
+  .ring {
+    position: relative;
+    aspect-ratio: 1;
+    display: grid; place-items: center;
+    background: var(--bg-elev-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+  }
+  .ring__svg {
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+  }
+  .ring__track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-width: 8;
+  }
+  .ring__progress {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .ring__center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -55%);
+    text-align: center;
+  }
+  .ring__pct {
+    display: block;
+    font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+  .ring__unit {
+    font-size: 10px; color: var(--text-dim);
+    font-family: var(--mono);
+  }
+  .ring__label {
+    position: absolute;
+    bottom: 10px; left: 0; right: 0;
+    text-align: center;
+    font-size: 11px; color: var(--text-muted);
+    font-weight: 600;
+    padding: 0 6px;
+  }
+
+  .streak {
+    display: flex; align-items: center; gap: 14px;
+    margin-top: auto;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(255, 90, 44, 0.12), rgba(255, 46, 136, 0.06));
+    border: 1px solid rgba(255, 90, 44, 0.25);
+    border-radius: 14px;
+  }
+  .streak__icon { font-size: 26px; }
+  .streak__num { font-weight: 800; font-size: 16px; }
+  .streak__sub { font-size: 12.5px; color: var(--text-muted); }
+
+  @media (max-width: 920px) {
+    .dash { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .dash__head { flex-direction: column; gap: 16px; }
+    .dash__foot { gap: 24px; flex-wrap: wrap; }
+    .rings { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  // Metric toggle — swap bars between kcal and minutes.
+  const dash = document.querySelector<HTMLElement>(".dash");
+  const segs = document.querySelectorAll<HTMLButtonElement>(".seg");
+  const valLabels = document.querySelectorAll<HTMLElement>(".chart__val");
+
+  segs.forEach((seg) => {
+    seg.addEventListener("click", () => {
+      segs.forEach((s) => s.classList.remove("is-active"));
+      seg.classList.add("is-active");
+      const metric = seg.dataset.metric;
+      dash?.setAttribute("data-metric", metric ?? "kcal");
+      valLabels.forEach((v) => {
+        v.textContent = metric === "mins" ? v.dataset.minsVal : v.dataset.kcalVal;
+      });
+    });
+  });
+
+  // Count-up animation for goal ring percentages.
+  const rings = document.querySelectorAll<HTMLElement>(".ring");
+  const animateRings = () => {
+    rings.forEach((ring) => {
+      const pctEl = ring.querySelector<HTMLElement>(".ring__pct");
+      if (!pctEl || pctEl.dataset.done) return;
+      const target = parseInt(pctEl.dataset.pct ?? "0", 10);
+      pctEl.dataset.done = "1";
+      let cur = 0;
+      const step = () => {
+        cur += Math.max(1, Math.round((target - cur) * 0.08));
+        if (cur >= target) cur = target;
+        pctEl.textContent = `${cur}%`;
+        if (cur < target) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  };
+
+  // Trigger on reveal.
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          animateRings();
+          io.disconnect();
+        }
+      });
+    },
+    { threshold: 0.4 }
+  );
+  const progress = document.querySelector(".dash");
+  if (progress) io.observe(progress);
+</script>
