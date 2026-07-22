@@ -2,6 +2,8 @@
 import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Hero from "../components/Hero.astro";
+import SocialProof from "../components/SocialProof.astro";
+import Features from "../components/Features.astro";
 import Workouts from "../components/Workouts.astro";
 import ProgressDashboard from "../components/ProgressDashboard.astro";
 import Coaches from "../components/Coaches.astro";
@@ -14,9 +16,12 @@ import Footer from "../components/Footer.astro";
   <Navbar />
   <main>
     <Hero />
+    <SocialProof />
+    <Features />
     <Workouts />
     <ProgressDashboard />
     <Coaches />
+    <!-- Testimonials are rendered inside SocialProof (press marquee + stories share the file) -->
     <Pricing />
     <FinalCTA />
   </main>

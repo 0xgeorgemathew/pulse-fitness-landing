@@ -1,13 +1,19 @@
 // ============================================================
 // PULSE — Central content data for the landing page.
-// Keeping copy + figures here so components stay focused on layout.
+// Keeping copy + figures + imagery here so components stay
+// focused on layout. All Unsplash URLs verified HTTP 200.
 // ============================================================
+
+// Helper: stable Unsplash CDN url with sensible defaults.
+const img = (id: string, w = 800, h?: number) =>
+  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}${h ? `&h=${h}` : ""}&q=80`;
 
 export const site = {
   name: "PULSE",
   tagline: "Train like you mean it.",
   description:
     "PULSE is the high-energy fitness app that turns ambition into routine. Real coaches, smart tracking, and workouts that actually move the needle.",
+  heroImage: img("photo-1534258936925-c58bed479fcb", 1600, 1000),
 };
 
 export const stats = [
@@ -28,6 +34,7 @@ export type Workout = {
   accent: "lime" | "orange" | "pink" | "blue";
   blurb: string;
   moves: string[];
+  image: string;
 };
 
 export const workouts: Workout[] = [
@@ -42,6 +49,7 @@ export const workouts: Workout[] = [
     accent: "orange",
     blurb: "Progressive compound lifts to build raw, functional power.",
     moves: ["Back squat", "Deadlift", "Bench", "Weighted pull-up"],
+    image: img("photo-1538805060514-97d9cc17730c", 800, 600),
   },
   {
     id: "afterburn",
@@ -54,6 +62,7 @@ export const workouts: Workout[] = [
     accent: "pink",
     blurb: "Tabata-style intervals that keep burning calories for hours.",
     moves: ["Burpees", "Box jumps", "Kettlebell swing", "Sprint"],
+    image: img("photo-1574680096145-d05b474e2155", 800, 600),
   },
   {
     id: "deep-flow",
@@ -66,6 +75,7 @@ export const workouts: Workout[] = [
     accent: "blue",
     blurb: "Slow vinyasa to unlock mobility and reset your nervous system.",
     moves: ["Sun A", "Pigeon", "Spinal twist", "Savasana"],
+    image: img("photo-1544367567-0f2fcb009e0b", 800, 600),
   },
   {
     id: "shadow-round",
@@ -78,6 +88,7 @@ export const workouts: Workout[] = [
     accent: "lime",
     blurb: "Six three-minute rounds of shadow boxing + footwork drills.",
     moves: ["Jab-cross", "Slip roll", "Combos", "Conditioning"],
+    image: img("photo-1549719386-74dfcbf7dbed", 800, 600),
   },
   {
     id: "engine-room",
@@ -90,6 +101,7 @@ export const workouts: Workout[] = [
     accent: "blue",
     blurb: "Zone-2 endurance work that builds a tireless aerobic base.",
     moves: ["Row", "Bike", "Run", "Sled push"],
+    image: img("photo-1551698618-1dfe5d97d256", 800, 600),
   },
   {
     id: "reset",
@@ -102,6 +114,7 @@ export const workouts: Workout[] = [
     accent: "lime",
     blurb: "Targeted mobility flow for recovery days and tight joints.",
     moves: ["Hip openers", "T-spine", "Banded work", "Breath"],
+    image: img("photo-1518611012118-696072aa579a", 800, 600),
   },
 ];
 
@@ -113,6 +126,7 @@ export type Coach = {
   accent: "lime" | "orange" | "pink" | "blue";
   years: number;
   cred: string;
+  image: string;
 };
 
 export const coaches: Coach[] = [
@@ -124,6 +138,7 @@ export const coaches: Coach[] = [
     accent: "orange",
     years: 12,
     cred: "NSCA-CSCS",
+    image: img("photo-1568602471122-7832951cc4c5", 600, 600),
   },
   {
     name: "Lena Cruz",
@@ -133,6 +148,7 @@ export const coaches: Coach[] = [
     accent: "pink",
     years: 9,
     cred: "NASM-CPT",
+    image: img("photo-1438761681033-6461ffad8d80", 600, 600),
   },
   {
     name: "Priya Anand",
@@ -142,6 +158,7 @@ export const coaches: Coach[] = [
     accent: "blue",
     years: 11,
     cred: "RYT-500",
+    image: img("photo-1594381898411-846e7d193883", 600, 600),
   },
   {
     name: "Diego Marín",
@@ -151,6 +168,7 @@ export const coaches: Coach[] = [
     accent: "lime",
     years: 14,
     cred: "Ex-pro · 47-3",
+    image: img("photo-1507003211169-0a1dd7228f2d", 600, 600),
   },
 ];
 
@@ -231,4 +249,92 @@ export const goals = [
   { label: "Weekly workouts", value: 5, target: 6, unit: "", accent: "lime" as const },
   { label: "Calories burned", value: 2760, target: 3500, unit: "kcal", accent: "orange" as const },
   { label: "Active minutes", value: 243, target: 300, unit: "min", accent: "blue" as const },
+];
+
+// ---------- Social proof ----------
+
+export const pressLogos = [
+  "Men's Health",
+  "WIRED",
+  "The Verge",
+  "Outside",
+  "Shape",
+  "Gear Patrol",
+];
+
+export type Testimonial = {
+  quote: string;
+  name: string;
+  detail: string;
+  initials: string;
+  accent: "lime" | "orange" | "pink" | "blue";
+};
+
+export const testimonials: Testimonial[] = [
+  {
+    quote:
+      "I've tried every fitness app out there. PULSE is the first one where I actually look forward to the workout. The coaches are unreal.",
+    name: "Jordan M.",
+    detail: "Lost 18 lbs in 12 weeks",
+    initials: "JM",
+    accent: "lime",
+  },
+  {
+    quote:
+      "The progress dashboard is addictive. Seeing the rings close every day turned exercise from a chore into a game I refuse to lose.",
+    name: "Sofia R.",
+    detail: "Marathon PR · 3:42",
+    initials: "SR",
+    accent: "pink",
+  },
+  {
+    quote:
+      "As a busy dad with two kids, the 18-minute Reset sessions are a lifesaver. I'm moving better now than I did in my twenties.",
+    name: "Andre K.",
+    detail: "Member since 2024",
+    initials: "AK",
+    accent: "orange",
+  },
+  {
+    quote:
+      "Diego's boxing classes are the best workout I've ever done outside a real gym. Technique breakdowns are genuinely elite.",
+    name: "Mei L.",
+    detail: "142-day streak",
+    initials: "ML",
+    accent: "blue",
+  },
+];
+
+export type Feature = {
+  title: string;
+  desc: string;
+  accent: "lime" | "orange" | "pink" | "blue";
+  icon: "adaptive" | "live" | "track" | "community";
+};
+
+export const features: Feature[] = [
+  {
+    title: "Adaptive plans",
+    desc: "Your plan reshuffles every week based on your recovery, goals, and what you actually enjoy.",
+    accent: "lime",
+    icon: "adaptive",
+  },
+  {
+    title: "Live classes",
+    desc: "180+ live sessions a week with real-time leaderboards and shoutouts from your coach.",
+    accent: "orange",
+    icon: "live",
+  },
+  {
+    title: "Deep tracking",
+    desc: "Heart rate, calories, streaks, and PRs — synced from Apple Health, Garmin, Whoop, and more.",
+    accent: "blue",
+    icon: "track",
+  },
+  {
+    title: "Real community",
+    desc: "Join challenges, share wins, and train alongside 2.4M athletes who keep each other honest.",
+    accent: "pink",
+    icon: "community",
+  },
 ];

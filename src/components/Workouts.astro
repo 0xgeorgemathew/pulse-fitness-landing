@@ -7,6 +7,8 @@ const accentVar = {
   pink: "var(--pink)",
   blue: "var(--blue)",
 };
+
+const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
 ---
 
 <section class="section" id="workouts">
@@ -21,7 +23,7 @@ const accentVar = {
       </p>
     </div>
 
-    <div class="filters reveal" role="tablist" aria-label="Filter workouts by category">
+    <div class="filters reveal" role="group" aria-label="Filter workouts by category">
       <button class="filter is-active" data-filter="all">All</button>
       <button class="filter" data-filter="Strength">Strength</button>
       <button class="filter" data-filter="HIIT">HIIT</button>
@@ -34,22 +36,35 @@ const accentVar = {
     <div class="cards" data-grid>
       {workouts.map((w) => (
         <article class="card workout reveal" data-category={w.category} style={`--accent:${accentVar[w.accent]}`}>
-          <div class="workout__top">
-            <span class="chip chip--{w.accent}">{w.category}</span>
-            <span class="workout__intensity" aria-label={`Intensity ${w.intensity}`}>
+          <div class="workout__hero">
+            <img
+              class="workout__img"
+              src={w.image}
+              alt=""
+              width="640"
+              height="400"
+              loading="lazy"
+              decoding="async"
+            />
+            <div class="workout__overlay" aria-hidden="true"></div>
+
+            <span class="chip chip--{w.accent} workout__chip">{w.category}</span>
+            <span
+              class="workout__intensity"
+              aria-hidden="true"
+            >
               {Array.from({ length: 4 }).map((_, i) => (
-                <span class={`bar ${i < { Low: 1, Medium: 2, High: 3, Max: 4 }[w.intensity] ? "on" : ""}`}></span>
+                <span class={`bar ${i < intensityMap[w.intensity] ? "on" : ""}`}></span>
               ))}
             </span>
-          </div>
+            <span class="sr-only">Intensity {w.intensity}</span>
 
-          <div class="workout__hero" aria-hidden="true">
-            <div class="workout__hero-bg"></div>
-            <div class="workout__play">
+            <div class="workout__play" aria-hidden="true">
               <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
                 <path d="M6 4 L17 11 L6 18 Z" fill="currentColor"/>
               </svg>
             </div>
+
             <span class="workout__duration">{w.duration} min</span>
           </div>
 
@@ -122,65 +137,86 @@ const accentVar = {
   .workout {
     overflow: hidden;
     display: flex; flex-direction: column;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   }
   .workout:hover {
     transform: translateY(-4px);
     border-color: var(--accent);
+    box-shadow: var(--shadow-lg);
   }
   .workout.is-hidden { display: none; }
 
-  .workout__top {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 18px 0;
+  /* ---------- Media / photo thumbnail ---------- */
+  .workout__hero {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--bg-elev-2);
   }
-  .workout__intensity { display: inline-flex; gap: 3px; align-items: flex-end; }
+  .workout__img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+  .workout:hover .workout__img { transform: scale(1.06); }
+
+  /* Layered overlay: accent tint at top + dark blend at bottom. */
+  .workout__overlay {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--accent) 25%, transparent), transparent 50%),
+      linear-gradient(180deg, transparent 40%, rgba(8, 8, 11, 0.85));
+    pointer-events: none;
+  }
+
+  /* Meta sitting on the photo */
+  .workout__chip {
+    position: absolute; top: 14px; left: 14px;
+    z-index: 2;
+  }
+  .workout__intensity {
+    position: absolute; top: 16px; right: 14px;
+    z-index: 2;
+    display: inline-flex; gap: 3px; align-items: flex-end;
+  }
   .workout__intensity .bar {
     width: 4px; height: 14px;
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 2px;
   }
   .workout__intensity .bar.on { background: var(--accent); }
 
-  .workout__hero {
-    position: relative;
-    margin: 14px 18px 0;
-    height: 140px;
-    border-radius: 14px;
-    overflow: hidden;
-    display: grid; place-items: center;
-  }
-  .workout__hero-bg {
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(circle at 70% 30%, color-mix(in srgb, var(--accent) 45%, transparent), transparent 60%),
-      linear-gradient(135deg, #1a1a24, #0e0e14);
-  }
   .workout__play {
-    position: relative; z-index: 1;
-    width: 48px; height: 48px;
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    width: 52px; height: 52px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.92);
     color: #08080b;
     display: grid; place-items: center;
-    transition: transform 0.2s ease;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   }
-  .workout:hover .workout__play { transform: scale(1.1); }
+  .workout:hover .workout__play { transform: translate(-50%, -50%) scale(1.1); }
   .workout__play svg { margin-left: 3px; }
 
   .workout__duration {
-    position: absolute; bottom: 10px; right: 10px;
-    z-index: 1;
+    position: absolute; bottom: 12px; right: 12px;
+    z-index: 2;
     font-family: var(--mono);
     font-size: 11px; font-weight: 700;
     padding: 4px 9px;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(8px);
     border-radius: 6px;
     border: 1px solid var(--border);
   }
 
-  .workout__body { padding: 18px; display: flex; flex-direction: column; flex: 1; }
+  /* ---------- Body ---------- */
+  .workout__body { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
   .workout__title {
     font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
   }
@@ -190,7 +226,7 @@ const accentVar = {
   }
   .workout__moves {
     display: flex; flex-wrap: wrap; gap: 6px;
-    margin-top: 14px;
+    margin-top: 12px;
   }
   .workout__moves li {
     font-size: 11.5px;
@@ -204,7 +240,7 @@ const accentVar = {
   .workout__meta {
     display: flex; flex-wrap: wrap; gap: 14px;
     align-items: center;
-    margin-top: auto; padding-top: 16px;
+    margin-top: auto; padding-top: 14px;
     font-size: 12.5px;
     color: var(--text-muted);
     border-top: 1px solid var(--border);

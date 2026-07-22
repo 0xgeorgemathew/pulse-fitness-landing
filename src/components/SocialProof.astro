@@ -1,0 +1,168 @@
+---
+import { testimonials, pressLogos } from "../data/site";
+
+const accentVar = {
+  lime: "var(--lime)",
+  orange: "var(--orange)",
+  pink: "var(--pink)",
+  blue: "var(--blue)",
+};
+---
+
+<!-- Press logo marquee -->
+<section class="press" aria-label="As featured in">
+  <div class="container">
+    <p class="press__label reveal">As featured in</p>
+    <div class="press__track reveal">
+      <div class="press__row">
+        {pressLogos.concat(pressLogos).map((logo) => (
+          <span class="press__logo">{logo}</span>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section testimonials-section" id="stories">
+  <div class="container">
+    <div class="section-head section-head--center reveal">
+      <span class="eyebrow">The proof</span>
+      <h2 class="section-title">2.4 million people, <em>one habit.</em></h2>
+      <p class="section-lead">
+        Real results from real members. No actors, no filters — just people who
+        decided to stop starting over.
+      </p>
+    </div>
+
+    <div class="testimonials">
+      {testimonials.map((t, i) => (
+        <figure class="card testimonial reveal" style={`--accent:${accentVar[t.accent]}; transition-delay:${i * 0.05}s`}>
+          <div class="testimonial__quote-mark" aria-hidden="true">"</div>
+          <blockquote class="testimonial__quote">{t.quote}</blockquote>
+          <figcaption class="testimonial__author">
+            <span class="testimonial__avatar" style={`--accent:${accentVar[t.accent]}`}>{t.initials}</span>
+            <span class="testimonial__meta">
+              <span class="testimonial__name">{t.name}</span>
+              <span class="testimonial__detail">{t.detail}</span>
+            </span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ---------- Press marquee ---------- */
+  .press {
+    padding-block: 36px 8px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elev);
+    overflow: hidden;
+  }
+  .press__label {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+  .press__track {
+    position: relative;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+  .press__row {
+    display: flex;
+    gap: 56px;
+    width: max-content;
+    animation: marquee 28s linear infinite;
+  }
+  @keyframes marquee {
+    to { transform: translateX(-50%); }
+  }
+  .press__logo {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-muted);
+    opacity: 0.6;
+    white-space: nowrap;
+    transition: opacity 0.2s ease, color 0.2s ease;
+  }
+  .press__logo:hover { opacity: 1; color: var(--text); }
+  @media (prefers-reduced-motion: reduce) {
+    .press__row { animation: none; flex-wrap: wrap; justify-content: center; width: 100%; }
+  }
+
+  /* ---------- Testimonials ---------- */
+  .testimonials {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .testimonial {
+    position: relative;
+    padding: 32px 30px 28px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .testimonial:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  .testimonial__quote-mark {
+    position: absolute;
+    top: 14px; right: 24px;
+    font-family: var(--display);
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.14;
+    pointer-events: none;
+  }
+
+  .testimonial__quote {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--text);
+    flex: 1;
+    margin-bottom: 24px;
+  }
+
+  .testimonial__author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .testimonial__avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 14px;
+    color: #08080b;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .testimonial__meta { display: flex; flex-direction: column; gap: 2px; }
+  .testimonial__name { font-weight: 700; font-size: 14.5px; }
+  .testimonial__detail {
+    font-size: 12.5px; color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  @media (max-width: 760px) {
+    .testimonials { grid-template-columns: 1fr; }
+  }
+</style>

@@ -23,19 +23,31 @@ const accentVar = {
     <div class="coaches-grid">
       {coaches.map((c) => (
         <article class="card coach reveal" style={`--accent:${accentVar[c.accent]}`}>
-          <div class="coach__photo" aria-hidden="true">
-            <div class="coach__photo-bg"></div>
-            <span class="coach__initials">{c.initials}</span>
+          <div class="coach__photo">
+            <img
+              class="coach__img"
+              src={c.image}
+              alt={`Portrait of ${c.name}, ${c.role}`}
+              width="600"
+              height="600"
+              loading="lazy"
+              decoding="async"
+            />
             <span class="coach__cred">{c.cred}</span>
+            <div class="coach__overlay">
+              <div class="coach__overlay-inner">
+                <h3 class="coach__name">{c.name}</h3>
+                <div class="coach__role">{c.role}</div>
+              </div>
+            </div>
           </div>
           <div class="coach__body">
-            <h3 class="coach__name">{c.name}</h3>
-            <div class="coach__role">{c.role}</div>
             <div class="coach__spec">{c.specialty}</div>
             <div class="coach__meta">
-              <span><strong>{c.years}</strong> yrs</span>
-              <span class="dot-sep" aria-hidden="true"></span>
-              <span class="coach__follow">Follow</span>
+              <span><strong>{c.years}</strong> yrs experience</span>
+              <span class="coach__follow" role="button" tabindex="0">
+                <span class="coach__follow-plus" aria-hidden="true">+</span> Follow
+              </span>
             </div>
           </div>
         </article>
@@ -54,75 +66,129 @@ const accentVar = {
   .coach {
     overflow: hidden;
     display: flex; flex-direction: column;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   }
   .coach:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px);
     border-color: var(--accent);
+    box-shadow: var(--shadow-lg);
   }
 
+  /* ---- Photo region (poster) ---- */
   .coach__photo {
     position: relative;
-    aspect-ratio: 1;
-    display: grid; place-items: center;
+    aspect-ratio: 1 / 1;
     overflow: hidden;
+    background: var(--bg-elev-2);
   }
-  .coach__photo-bg {
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--accent) 55%, transparent), transparent 65%),
-      linear-gradient(160deg, #1a1a24, #0b0b10);
+  .coach__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .coach__initials {
-    position: relative; z-index: 1;
-    font-family: var(--display);
-    font-weight: 900;
-    font-size: 64px;
-    letter-spacing: -0.04em;
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  }
-  .coach__cred {
-    position: absolute; bottom: 12px; right: 12px;
+  .coach:hover .coach__img { transform: scale(1.05); }
+
+  /* Gradient overlays: strong bottom fade + subtle accent tint at top */
+  .coach__photo::before {
+    content: "";
+    position: absolute;
+    inset: 0;
     z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--accent) 30%, transparent), transparent 40%),
+      linear-gradient(180deg, transparent 30%, rgba(8, 8, 11, 0.92));
+  }
+
+  /* Frosted credential badge, top-right */
+  .coach__cred {
+    position: absolute;
+    top: 12px; right: 12px;
+    z-index: 3;
     font-family: var(--mono);
     font-size: 10px; font-weight: 700;
-    padding: 4px 8px;
-    background: rgba(0, 0, 0, 0.6);
+    letter-spacing: 0.04em;
+    padding: 5px 9px;
+    background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--border);
     border-radius: 6px;
     color: var(--accent);
   }
 
-  .coach__body { padding: 18px 20px 20px; }
+  /* Name + role overlaid on the photo bottom */
+  .coach__overlay {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    z-index: 2;
+    padding: 18px 20px 16px;
+    pointer-events: none;
+  }
+  .coach__overlay-inner { pointer-events: auto; }
   .coach__name {
-    font-size: 19px; font-weight: 800; letter-spacing: -0.02em;
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
   }
   .coach__role {
-    font-size: 13px; color: var(--accent);
-    font-weight: 600; margin-top: 2px;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: 3px;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ---- Card footer ---- */
+  .coach__body {
+    padding: 14px 20px 18px;
+    display: flex; flex-direction: column;
+    gap: 12px;
   }
   .coach__spec {
-    font-size: 13px; color: var(--text-muted); margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
   }
   .coach__meta {
-    display: flex; align-items: center; gap: 10px;
-    margin-top: 16px; padding-top: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px;
+    padding-top: 12px;
     border-top: 1px solid var(--border);
-    font-size: 13px; color: var(--text-muted);
+    font-size: 13px;
+    color: var(--text-muted);
   }
   .coach__meta strong { color: var(--text); font-weight: 700; }
-  .dot-sep {
-    width: 3px; height: 3px;
-    border-radius: 50%;
-    background: var(--text-dim);
-  }
+
   .coach__follow {
-    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    padding: 6px 12px;
+    border-radius: 999px;
     color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
     cursor: pointer;
-    transition: opacity 0.18s ease;
+    user-select: none;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
-  .coach__follow:hover { opacity: 0.75; }
+  .coach__follow-plus { font-size: 13px; line-height: 1; }
+  .coach__follow:hover,
+  .coach__follow:focus-visible {
+    background: var(--accent);
+    color: #08080b;
+    border-color: var(--accent);
+    outline: none;
+  }
 </style>

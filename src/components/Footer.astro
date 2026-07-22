@@ -66,7 +66,7 @@ const cols = [
       <nav class="footer__cols" aria-label="Footer">
         {cols.map((col) => (
           <div class="footer__col">
-            <h4>{col.title}</h4>
+            <h3 class="footer__heading">{col.title}</h3>
             <ul>
               {col.links.map((l) => <li><a href="#">{l}</a></li>)}
             </ul>
@@ -135,7 +135,7 @@ const cols = [
     grid-template-columns: repeat(4, 1fr);
     gap: 24px;
   }
-  .footer__col h4 {
+  .footer__heading {
     font-family: var(--mono);
     font-size: 11px; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.1em;

@@ -12,8 +12,8 @@
 
   /* Text */
   --text: #ffffff;
-  --text-muted: #9a9aa8;
-  --text-dim: #6a6a78;
+  --text-muted: #a8a8b8;
+  --text-dim: #8a8a9a;
 
   /* Brand energy colors */
   --lime: #d4ff3a;      /* signature electric lime */
@@ -33,14 +33,17 @@
 
   /* Effects */
   --ring: 0 0 0 1px var(--border);
-  --shadow-lg: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+  --shadow-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  --shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 28px 70px -24px rgba(0, 0, 0, 0.75);
+  --shadow-glow-lime: 0 24px 60px -20px rgba(212, 255, 58, 0.3);
   --glow-lime: 0 0 40px rgba(212, 255, 58, 0.35);
   --glow-orange: 0 0 40px rgba(255, 90, 44, 0.4);
 
   /* Type */
   --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --display: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
 
   /* Layout */
   --maxw: 1200px;
@@ -79,6 +82,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 ul { list-style: none; }
 
 ::selection { background: var(--lime); color: #000; }
+
+/* ---------- Visually hidden (screen-reader only) ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 /* ---------- Layout helpers ---------- */
 .container {
@@ -163,7 +177,8 @@ ul { list-style: none; }
 .btn--primary:hover { box-shadow: 0 0 56px rgba(212, 255, 58, 0.55); }
 
 .btn--orange {
-  --btn-bg: var(--orange);
+  /* Deepened from --orange so the white label clears WCAG 4.5:1 contrast. */
+  --btn-bg: #d23a14;
   --btn-fg: #fff;
   box-shadow: var(--glow-orange);
 }
