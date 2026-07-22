@@ -37,11 +37,22 @@ const accentVar = {
 
     <div class="testimonials">
       {testimonials.map((t, i) => (
-        <figure class="card testimonial reveal" style={`--accent:${accentVar[t.accent]}; transition-delay:${i * 0.05}s`}>
-          <div class="testimonial__quote-mark" aria-hidden="true">"</div>
-          <blockquote class="testimonial__quote">{t.quote}</blockquote>
+        <figure
+          class:list={["card", "testimonial", "reveal", { "testimonial--featured": i === 0 }]}
+          style={`--accent:${accentVar[t.accent]}; transition-delay:${i * 0.06}s`}
+        >
+          <span class="testimonial__quote-mark" aria-hidden="true">“</span>
+
+          <div class="testimonial__body">
+            <div class="testimonial__stars">
+              <span class="testimonial__stars-icon" aria-hidden="true">★★★★★</span>
+              <span class="sr-only">Rated 5 out of 5 stars</span>
+            </div>
+            <blockquote class="testimonial__quote">{t.quote}</blockquote>
+          </div>
+
           <figcaption class="testimonial__author">
-            <span class="testimonial__avatar" style={`--accent:${accentVar[t.accent]}`}>{t.initials}</span>
+            <span class="testimonial__avatar" aria-hidden="true">{t.initials}</span>
             <span class="testimonial__meta">
               <span class="testimonial__name">{t.name}</span>
               <span class="testimonial__detail">{t.detail}</span>
@@ -54,12 +65,14 @@ const accentVar = {
 </section>
 
 <style>
-  /* ---------- Press marquee ---------- */
+  /* ===========================================================
+     Press marquee
+     =========================================================== */
   .press {
-    padding-block: 36px 8px;
+    padding-block: 46px 30px;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    background: var(--bg-elev);
+    background: linear-gradient(180deg, var(--bg-elev), var(--bg));
     overflow: hidden;
   }
   .press__label {
@@ -67,10 +80,25 @@ const accentVar = {
     font-family: var(--mono);
     font-size: 11px;
     text-transform: uppercase;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.22em;
     color: var(--text-dim);
-    margin-bottom: 20px;
+    margin-bottom: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
   }
+  .press__label::before,
+  .press__label::after {
+    content: "";
+    width: 36px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong));
+  }
+  .press__label::after {
+    background: linear-gradient(90deg, var(--border-strong), transparent);
+  }
+
   .press__track {
     position: relative;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
@@ -78,91 +106,231 @@ const accentVar = {
   }
   .press__row {
     display: flex;
-    gap: 56px;
+    align-items: center;
     width: max-content;
-    animation: marquee 28s linear infinite;
+    animation: marquee 40s linear infinite;
   }
+  /* Gentle premium touch: pause when a reader hovers the strip. */
+  .press__track:hover .press__row { animation-play-state: paused; }
   @keyframes marquee {
     to { transform: translateX(-50%); }
   }
+
   .press__logo {
+    display: inline-flex;
+    align-items: center;
     font-family: var(--display);
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
+    font-size: clamp(22px, 2.4vw, 28px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
     color: var(--text-muted);
-    opacity: 0.6;
+    opacity: 0.5;
     white-space: nowrap;
-    transition: opacity 0.2s ease, color 0.2s ease;
+    transition: opacity 0.28s var(--ease-out), color 0.28s var(--ease-out),
+      transform 0.28s var(--ease-out);
   }
-  .press__logo:hover { opacity: 1; color: var(--text); }
-  @media (prefers-reduced-motion: reduce) {
-    .press__row { animation: none; flex-wrap: wrap; justify-content: center; width: 100%; }
+  /* Dot separator between logos. Sits in the flex gap so the rhythm
+     stays consistent across the looped seam. */
+  .press__logo::after {
+    content: "";
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    margin-left: 44px;
+    transition: background 0.28s var(--ease-out), box-shadow 0.28s var(--ease-out);
+  }
+  .press__logo:hover {
+    opacity: 1;
+    color: var(--lime);
+    transform: translateY(-1px);
+  }
+  .press__logo:hover::after {
+    background: var(--lime);
+    box-shadow: 0 0 10px rgba(212, 255, 58, 0.7);
   }
 
-  /* ---------- Testimonials ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .press__row {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+  }
+
+  /* ===========================================================
+     Testimonials grid
+     =========================================================== */
   .testimonials {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
   }
+  /* First testimonial becomes a full-width featured card (desktop). */
+  .testimonial--featured { grid-column: 1 / -1; }
 
   .testimonial {
     position: relative;
-    padding: 32px 30px 28px;
     display: flex;
     flex-direction: column;
+    padding: 34px 32px 30px;
+    /* Premium glass surface overrides the default .card background. */
+    background: rgba(255, 255, 255, 0.03);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
     overflow: hidden;
+    transition: transform 0.3s var(--ease-out), border-color 0.3s var(--ease-out),
+      box-shadow 0.35s var(--ease-out), background 0.3s var(--ease-out);
   }
   .testimonial:hover {
-    transform: translateY(-3px);
-    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    box-shadow: 0 26px 60px -26px color-mix(in srgb, var(--accent) 45%, transparent),
+      var(--shadow);
+  }
+  .testimonial:hover .testimonial__quote-mark {
+    opacity: 0.34;
+    transform: scale(1.04) rotate(-2deg);
   }
 
+  /* Dramatic decorative quote mark */
   .testimonial__quote-mark {
     position: absolute;
-    top: 14px; right: 24px;
+    top: 6px;
+    right: 26px;
     font-family: var(--display);
-    font-size: 80px;
+    font-size: 110px;
     font-weight: 900;
     line-height: 1;
     color: var(--accent);
-    opacity: 0.14;
+    opacity: 0.13;
     pointer-events: none;
+    transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+    user-select: none;
+  }
+
+  .testimonial__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Decorative 5-star rating (purely visual) */
+  .testimonial__stars {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+  }
+  .testimonial__stars-icon {
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 45%, transparent));
   }
 
   .testimonial__quote {
-    font-size: 17px;
-    line-height: 1.55;
+    font-size: 17.5px;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
     color: var(--text);
-    flex: 1;
-    margin-bottom: 24px;
   }
 
   .testimonial__author {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding-top: 18px;
+    gap: 13px;
+    padding-top: 20px;
+    margin-top: 24px;
     border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
   }
   .testimonial__avatar {
-    width: 42px; height: 42px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    display: grid; place-items: center;
-    font-weight: 800; font-size: 14px;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 14px;
     color: #08080b;
     background: var(--accent);
     flex-shrink: 0;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent),
+      0 8px 20px -8px color-mix(in srgb, var(--accent) 65%, transparent);
   }
-  .testimonial__meta { display: flex; flex-direction: column; gap: 2px; }
-  .testimonial__name { font-weight: 700; font-size: 14.5px; }
+  .testimonial__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .testimonial__name {
+    font-weight: 700;
+    font-size: 14.5px;
+    letter-spacing: -0.01em;
+  }
   .testimonial__detail {
-    font-size: 12.5px; color: var(--text-muted);
+    font-size: 12.5px;
+    color: var(--text-muted);
     font-family: var(--mono);
   }
 
+  /* ---- Featured (first) testimonial: full-width editorial split ---- */
+  @media (min-width: 981px) {
+    .testimonial--featured {
+      display: grid;
+      grid-template-columns: 1.6fr 0.75fr;
+      align-items: center;
+      gap: 48px;
+      padding: 50px 52px;
+    }
+    .testimonial--featured .testimonial__body { gap: 24px; }
+    .testimonial--featured .testimonial__quote {
+      font-size: clamp(21px, 2.1vw, 27px);
+      line-height: 1.42;
+    }
+    .testimonial--featured .testimonial__stars-icon { font-size: 18px; }
+    .testimonial--featured .testimonial__quote-mark {
+      font-size: 170px;
+      top: 24px;
+      right: 44px;
+    }
+    .testimonial--featured .testimonial__author {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      padding-top: 0;
+      padding-left: 36px;
+      margin-top: 0;
+      border-top: none;
+      border-left: 1px solid var(--border);
+      align-self: stretch;
+      justify-content: center;
+    }
+    .testimonial--featured .testimonial__avatar {
+      width: 54px;
+      height: 54px;
+      font-size: 17px;
+    }
+    .testimonial--featured .testimonial__name { font-size: 16px; }
+    .testimonial--featured .testimonial__detail { font-size: 13px; }
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 980px) {
+    .testimonials { grid-template-columns: repeat(2, 1fr); }
+    /* Un-feature on tablet so the 4 items form a clean 2×2. */
+    .testimonial--featured { grid-column: auto; }
+  }
   @media (max-width: 760px) {
     .testimonials { grid-template-columns: 1fr; }
+    .testimonial__quote-mark { font-size: 90px; top: 8px; right: 20px; }
   }
 </style>

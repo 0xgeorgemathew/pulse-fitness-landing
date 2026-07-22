@@ -1,15 +1,34 @@
 ---
 import { weeklyData, goals } from "../data/site";
 
+// ---- Derived figures --------------------------------------------------
 const maxKcal = Math.max(...weeklyData.map((d) => d.kcal));
+const maxMins = Math.max(...weeklyData.map((d) => d.mins));
 const totalKcal = weeklyData.reduce((a, b) => a + b.kcal, 0);
 const totalMins = weeklyData.reduce((a, b) => a + b.mins, 0);
 
-const accentVar = {
+// Index of the tallest bar for each metric (used for the glow accent).
+const maxKcalIdx = weeklyData.findIndex((d) => d.kcal === maxKcal);
+const maxMinsIdx = weeklyData.findIndex((d) => d.mins === maxMins);
+
+// Overall weekly completion = average of the three goal completion rates.
+const overallPct = Math.round(
+  (goals.reduce((acc, g) => acc + g.value / g.target, 0) / goals.length) * 100
+);
+
+// Map accent name -> token for inline CSS var injection.
+const accentVar: Record<string, string> = {
   lime: "var(--lime)",
   orange: "var(--orange)",
+  pink: "var(--pink)",
   blue: "var(--blue)",
 };
+
+// ---- Ring geometry helpers -------------------------------------------
+const HERO = { r: 52, stroke: 11 } as const;
+const MINI = { r: 18, stroke: 5 } as const;
+const circ = (r: number) => 2 * Math.PI * r;
+const offsetFor = (r: number, pct: number) => circ(r) - (pct / 100) * circ(r);
 ---
 
 <section class="section progress" id="progress">
@@ -25,31 +44,42 @@ const accentVar = {
       </p>
     </div>
 
-    <div class="dash reveal">
-      <!-- Left: chart + chart controls -->
+    <div class="dash reveal" data-metric="kcal">
+      <!-- =================== LEFT: chart panel =================== -->
       <div class="dash__panel dash__main">
         <div class="dash__head">
-          <div>
+          <div class="dash__headline">
             <span class="dash__label">This week</span>
-            <div class="dash__big">{totalKcal.toLocaleString()} <span>kcal</span></div>
+            <div class="dash__big">
+              <span class="dash__big-num" data-countup={totalKcal}>0</span>
+              <span class="dash__big-unit">kcal</span>
+            </div>
           </div>
           <div class="dash__toggle" role="group" aria-label="Choose metric">
-            <button class="seg is-active" data-metric="kcal">Calories</button>
-            <button class="seg" data-metric="mins">Minutes</button>
+            <button class="seg is-active" data-metric="kcal" aria-pressed="true">Calories</button>
+            <button class="seg" data-metric="mins" aria-pressed="false">Minutes</button>
           </div>
         </div>
 
-        <div class="chart" role="img" aria-label="Weekly activity bar chart">
-          {weeklyData.map((d) => (
+        <div
+          class="chart"
+          role="img"
+          aria-label={`Bar chart of this week's activity. Calories: ${weeklyData.map((d) => `${d.day} ${d.kcal}`).join(", ")}. Minutes: ${weeklyData.map((d) => `${d.day} ${d.mins}m`).join(", ")}.`}
+        >
+          <div class="chart__grid" aria-hidden="true"></div>
+          {weeklyData.map((d, i) => (
             <div class="chart__col">
               <div class="chart__bar-wrap">
                 <div
-                  class="chart__bar"
+                  class:list={[
+                    "chart__bar",
+                    { "is-max-kcal": i === maxKcalIdx, "is-max-mins": i === maxMinsIdx },
+                  ]}
                   data-kcal={d.kcal}
                   data-mins={d.mins}
-                  style={`--pct-kcal:${(d.kcal / maxKcal) * 100}%; --pct-mins:${(d.mins / 60) * 100}%`}
+                  style={`--pct-kcal:${(d.kcal / maxKcal) * 100}%; --pct-mins:${(d.mins / maxMins) * 100}%`}
                 >
-                  <span class="chart__val" data-kcal-val={`${d.kcal}`} data-mins-val={`${d.mins}m`}>
+                  <span class="chart__val" data-kcal-val={d.kcal === 0 ? "rest" : `${d.kcal}`} data-mins-val={d.mins === 0 ? "rest" : `${d.mins}m`}>
                     {d.kcal === 0 ? "rest" : d.kcal}
                   </span>
                 </div>
@@ -75,39 +105,80 @@ const accentVar = {
         </div>
       </div>
 
-      <!-- Right: goal rings -->
+      <!-- =================== RIGHT: goals panel =================== -->
       <div class="dash__panel dash__side">
         <span class="dash__label">Weekly goals</span>
-        <div class="rings">
-          {goals.map((g) => {
-            const pct = Math.round((g.value / g.target) * 100);
-            const r = 42;
-            const circ = 2 * Math.PI * r;
-            const offset = circ - (pct / 100) * circ;
-            return (
-              <div class="ring" style={`--accent:${accentVar[g.accent]}`}>
-                <svg viewBox="0 0 100 100" class="ring__svg">
-                  <circle cx="50" cy="50" r={r} class="ring__track"/>
-                  <circle
-                    cx="50" cy="50" r={r}
-                    class="ring__progress"
-                    style={`stroke-dasharray:${circ}; stroke-dashoffset:${offset}`}
-                    data-target-offset={offset}
-                  />
-                </svg>
-                <div class="ring__center">
-                  <span class="ring__pct" data-pct={pct}>0%</span>
-                  <span class="ring__unit">{g.unit}</span>
-                </div>
-                <span class="ring__label">{g.label}</span>
-              </div>
-            );
-          })}
+
+        <!-- HERO RING — overall completion -->
+        <div
+          class="hero"
+          role="img"
+          aria-label={`Overall weekly goal completion: ${overallPct} percent.`}
+        >
+          <div class="hero__glow" aria-hidden="true"></div>
+          <svg viewBox="0 0 120 120" class="hero__svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--lime)" />
+                <stop offset="100%" stop-color="var(--blue)" />
+              </linearGradient>
+            </defs>
+            <circle cx="60" cy="60" r={HERO.r} class="hero__track" />
+            <circle
+              cx="60" cy="60" r={HERO.r}
+              class="hero__progress"
+              pathLength={circ(HERO.r)}
+              style={`stroke-dasharray:${circ(HERO.r)}; stroke-dashoffset:${offsetFor(HERO.r, overallPct)}`}
+              data-target-offset={offsetFor(HERO.r, overallPct)}
+            />
+          </svg>
+          <div class="hero__center">
+            <span class="hero__pct" data-pct={overallPct}>0%</span>
+            <span class="hero__cap">weekly goal</span>
+          </div>
         </div>
 
+        <!-- GOAL LIST — vertical stack, zero overlap -->
+        <ul class="goals">
+          {goals.map((g) => {
+            const pct = Math.min(100, Math.round((g.value / g.target) * 100));
+            const off = offsetFor(MINI.r, pct);
+            return (
+              <li class="goal" style={`--accent:${accentVar[g.accent]}`}>
+                <div class="goal__ring" aria-hidden="true">
+                  <svg viewBox="0 0 44 44" class="goal__svg">
+                    <circle cx="22" cy="22" r={MINI.r} class="goal__track" />
+                    <circle
+                      cx="22" cy="22" r={MINI.r}
+                      class="goal__progress"
+                      pathLength={circ(MINI.r)}
+                      style={`stroke-dasharray:${circ(MINI.r)}; stroke-dashoffset:${off}`}
+                      data-target-offset={off}
+                    />
+                  </svg>
+                  <span class="goal__ring-pct" data-pct={pct}>0%</span>
+                </div>
+                <div class="goal__body">
+                  <div class="goal__top">
+                    <span class="goal__label">{g.label}</span>
+                    <span class="goal__val">
+                      {g.value.toLocaleString()}<span class="goal__val-sep">/{g.target.toLocaleString()}{g.unit ? ` ${g.unit}` : ""}</span>
+                    </span>
+                  </div>
+                  <div class="goal__bar" role="progressbar" aria-valuenow={pct} aria-valuemin="0" aria-valuemax="100" aria-label={`${g.label}: ${g.value} of ${g.target}${g.unit ? " " + g.unit : ""}`}>
+                    <span class="goal__fill" style={`--w:${pct}%`}></span>
+                  </div>
+                </div>
+                <span class="sr-only">{g.label}: {pct} percent complete.</span>
+              </li>
+            );
+          })}
+        </ul>
+
+        <!-- STREAK — frosted glass -->
         <div class="streak">
           <div class="streak__icon" aria-hidden="true">🔥</div>
-          <div>
+          <div class="streak__txt">
             <div class="streak__num">47 day streak</div>
             <div class="streak__sub">Personal record. Keep it alive.</div>
           </div>
@@ -129,6 +200,7 @@ const accentVar = {
     pointer-events: none;
   }
 
+  /* ============ Layout shell ============ */
   .dash {
     position: relative;
     display: grid;
@@ -136,10 +208,12 @@ const accentVar = {
     gap: 20px;
   }
   .dash__panel {
+    position: relative;
     background: var(--bg-elev);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: 28px;
+    box-shadow: var(--shadow);
   }
   .dash__label {
     font-family: var(--mono);
@@ -149,17 +223,33 @@ const accentVar = {
     color: var(--text-dim);
   }
 
+  /* ============ Left panel: headline + toggle ============ */
   .dash__head {
     display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 32px;
+    gap: 16px;
+    margin-bottom: 30px;
   }
+  .dash__headline { display: flex; flex-direction: column; gap: 6px; }
   .dash__big {
-    font-size: clamp(32px, 4vw, 44px);
-    font-weight: 800; letter-spacing: -0.03em;
-    margin-top: 6px;
+    display: flex; align-items: baseline; gap: 8px;
+    font-family: var(--display);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
   }
-  .dash__big span {
-    font-size: 0.5em; color: var(--text-muted); font-weight: 600; margin-left: 4px;
+  .dash__big-num {
+    font-size: clamp(40px, 6vw, 60px);
+    background: linear-gradient(120deg, var(--text), var(--text-muted));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-variant-numeric: tabular-nums;
+  }
+  .dash__big-unit {
+    font-size: clamp(15px, 1.8vw, 19px);
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: lowercase;
   }
 
   .dash__toggle {
@@ -174,14 +264,16 @@ const accentVar = {
     border-radius: 999px;
     font-size: 13px; font-weight: 600;
     color: var(--text-muted);
-    transition: all 0.18s ease;
+    transition: color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
   }
   .seg.is-active {
     background: var(--lime); color: #08080b;
+    box-shadow: 0 0 18px rgba(212, 255, 58, 0.35);
   }
 
-  /* Chart */
+  /* ============ Chart ============ */
   .chart {
+    position: relative;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
@@ -189,7 +281,20 @@ const accentVar = {
     height: 220px;
     padding-bottom: 4px;
   }
+  .chart__grid {
+    position: absolute;
+    inset: 0 0 22px;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 100% 25%;
+    background-position: 0 100%;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
   .chart__col {
+    position: relative;
+    z-index: 1;
     flex: 1;
     display: flex; flex-direction: column;
     align-items: center; gap: 10px;
@@ -199,48 +304,79 @@ const accentVar = {
     flex: 1;
     width: 100%;
     display: flex; align-items: flex-end; justify-content: center;
-    max-width: 56px;
+    max-width: 52px;
   }
   .chart__bar {
     width: 100%;
     height: var(--pct-kcal);
-    background: linear-gradient(180deg, var(--lime), rgba(212, 255, 58, 0.25));
-    border-radius: 8px 8px 4px 4px;
+    background: linear-gradient(180deg, var(--lime) 0%, rgba(46, 230, 255, 0.85) 100%);
+    border-radius: 9px 9px 4px 4px;
     position: relative;
+    transform: scaleY(0);
+    transform-origin: bottom;
     transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1),
                 background 0.3s ease,
-                opacity 0.3s ease;
+                box-shadow 0.3s ease,
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     min-height: 4px;
   }
-  .dash[data-metric="mins"] .chart__bar { height: var(--pct-mins); }
+  .dash.is-visible .chart__bar { transform: scaleY(1); }
+  /* stagger the grow-in */
+  .dash.is-visible .chart__col:nth-child(2) .chart__bar { transition-delay: 0.05s; }
+  .dash.is-visible .chart__col:nth-child(3) .chart__bar { transition-delay: 0.10s; }
+  .dash.is-visible .chart__col:nth-child(4) .chart__bar { transition-delay: 0.15s; }
+  .dash.is-visible .chart__col:nth-child(5) .chart__bar { transition-delay: 0.20s; }
+  .dash.is-visible .chart__col:nth-child(6) .chart__bar { transition-delay: 0.25s; }
+  .dash.is-visible .chart__col:nth-child(7) .chart__bar { transition-delay: 0.30s; }
+
+  .dash[data-metric="mins"] .chart__bar {
+    height: var(--pct-mins);
+    background: linear-gradient(180deg, var(--orange) 0%, var(--pink) 100%);
+  }
+
+  /* glow on the tallest bar */
+  .dash[data-metric="kcal"] .chart__bar.is-max-kcal {
+    box-shadow: 0 0 26px rgba(212, 255, 58, 0.55), 0 0 4px rgba(212, 255, 58, 0.6);
+  }
+  .dash[data-metric="mins"] .chart__bar.is-max-mins {
+    box-shadow: 0 0 26px rgba(255, 90, 44, 0.55), 0 0 4px rgba(255, 46, 136, 0.6);
+  }
+
   .chart__val {
     position: absolute;
-    top: -22px; left: 50%;
+    top: -24px; left: 50%;
     transform: translateX(-50%);
     font-family: var(--mono);
     font-size: 11px; font-weight: 700;
-    color: var(--text-muted);
+    color: var(--text);
+    background: var(--bg-elev-3);
+    border: 1px solid var(--border);
+    padding: 3px 7px;
+    border-radius: 7px;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.18s ease, transform 0.18s ease;
     white-space: nowrap;
+    pointer-events: none;
   }
+  .chart__bar:hover { filter: brightness(1.1); }
   .chart__bar:hover .chart__val,
-  .chart__col:hover .chart__val { opacity: 1; }
+  .chart__col:hover .chart__val { opacity: 1; transform: translateX(-50%) translateY(-2px); }
   .chart__day {
     font-family: var(--mono);
     font-size: 11px; color: var(--text-dim);
   }
-  .chart__bar[data-kcal="0"] { opacity: 0.3; }
+  .chart__bar[data-kcal="0"] { opacity: 0.32; }
 
   .dash__foot {
     display: flex; gap: 40px;
-    margin-top: 28px;
+    margin-top: 26px;
     padding-top: 22px;
     border-top: 1px solid var(--border);
   }
   .dash__foot-item { display: flex; flex-direction: column; gap: 2px; }
   .dash__foot-k {
     font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
   }
   .dash__foot-k--up { color: var(--good); }
   .dash__foot-l {
@@ -248,134 +384,341 @@ const accentVar = {
     font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em;
   }
 
-  /* Side panel — rings */
-  .dash__side { display: flex; flex-direction: column; }
-  .rings {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    margin: 22px 0 22px;
+  /* ============ Right panel ============ */
+  .dash__side {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
   }
-  .ring {
+  .dash__side > .dash__label { margin-bottom: -6px; }
+
+  /* ---- Hero ring ---- */
+  .hero {
     position: relative;
+    width: 200px;
     aspect-ratio: 1;
-    display: grid; place-items: center;
+    margin: 2px auto 0;
+    display: grid;
+    place-items: center;
+  }
+  .hero__glow {
+    position: absolute;
+    inset: 14%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(46, 230, 255, 0.28), rgba(212, 255, 58, 0.12) 55%, transparent 72%);
+    filter: blur(14px);
+    animation: heroPulse 3.6s ease-in-out infinite;
+    z-index: 0;
+  }
+  .hero__svg {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 0 10px rgba(46, 230, 255, 0.25));
+  }
+  .hero__track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-width: 11;
+  }
+  .hero__progress {
+    fill: none;
+    stroke: url(#heroGrad);
+    stroke-width: 11;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .hero__center {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-align: center;
+  }
+  .hero__pct {
+    font-family: var(--display);
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(120deg, var(--lime), var(--blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero__cap {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-dim);
+  }
+
+  @keyframes heroPulse {
+    0%, 100% { opacity: 0.55; transform: scale(0.96); }
+    50%      { opacity: 1;    transform: scale(1.04); }
+  }
+
+  /* ---- Goal list (vertical stack — NO overlap) ---- */
+  .goals {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .goal {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px;
     background: var(--bg-elev-2);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 12px;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
   }
-  .ring__svg {
+  .goal:hover {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.02);
+    transform: translateY(-1px);
+  }
+  .goal__ring {
+    position: relative;
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+  }
+  .goal__svg {
     width: 100%; height: 100%;
     transform: rotate(-90deg);
   }
-  .ring__track {
+  .goal__track {
     fill: none;
-    stroke: rgba(255, 255, 255, 0.06);
-    stroke-width: 8;
+    stroke: rgba(255, 255, 255, 0.07);
+    stroke-width: 5;
   }
-  .ring__progress {
+  .goal__progress {
     fill: none;
     stroke: var(--accent);
-    stroke-width: 8;
+    stroke-width: 5;
     stroke-linecap: round;
     transition: stroke-dashoffset 1.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .ring__center {
+  .goal__ring-pct {
     position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -55%);
-    text-align: center;
-  }
-  .ring__pct {
-    display: block;
-    font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
-    color: var(--accent);
-  }
-  .ring__unit {
-    font-size: 10px; color: var(--text-dim);
     font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
   }
-  .ring__label {
-    position: absolute;
-    bottom: 10px; left: 0; right: 0;
-    text-align: center;
-    font-size: 11px; color: var(--text-muted);
+  .goal__body {
+    flex: 1 1 auto;
+    min-width: 0;            /* allow text truncation, never overflow */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .goal__top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .goal__label {
+    font-size: 13.5px;
     font-weight: 600;
-    padding: 0 6px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+  .goal__val {
+    flex: 0 0 auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .goal__val-sep {
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .goal__bar {
+    position: relative;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+  .goal__fill {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, white));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent);
+    transition: width 1.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .dash.is-visible .goal__fill { width: var(--w); }
 
+  /* ---- Streak (frosted glass) ---- */
   .streak {
     display: flex; align-items: center; gap: 14px;
     margin-top: auto;
-    padding: 16px;
-    background: linear-gradient(135deg, rgba(255, 90, 44, 0.12), rgba(255, 46, 136, 0.06));
-    border: 1px solid rgba(255, 90, 44, 0.25);
-    border-radius: 14px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    position: relative;
+    background:
+      linear-gradient(135deg, rgba(255, 90, 44, 0.14), rgba(255, 46, 136, 0.07));
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    isolation: isolate;
+    overflow: hidden;
   }
-  .streak__icon { font-size: 26px; }
+  .streak::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 90, 44, 0.6), rgba(255, 46, 136, 0.3), transparent 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .streak__icon {
+    font-size: 26px;
+    filter: drop-shadow(0 0 8px rgba(255, 90, 44, 0.5));
+  }
   .streak__num { font-weight: 800; font-size: 16px; }
   .streak__sub { font-size: 12.5px; color: var(--text-muted); }
 
+  /* ============ Responsive ============ */
   @media (max-width: 920px) {
     .dash { grid-template-columns: 1fr; }
+    .hero { width: 190px; }
   }
   @media (max-width: 480px) {
+    .dash__panel { padding: 22px; }
     .dash__head { flex-direction: column; gap: 16px; }
     .dash__foot { gap: 24px; flex-wrap: wrap; }
-    .rings { grid-template-columns: 1fr; }
+    .goal { padding: 12px; gap: 12px; }
+    .goal__ring { width: 46px; height: 46px; }
+  }
+
+  /* ============ Reduced motion ============ */
+  @media (prefers-reduced-motion: reduce) {
+    .chart__bar { transform: none !important; }
+    .hero__glow { animation: none !important; }
+    .hero__progress,
+    .goal__progress { transition: none !important; }
+    .dash.is-visible .goal__fill { width: var(--w); }
   }
 </style>
 
 <script>
-  // Metric toggle — swap bars between kcal and minutes.
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- Metric toggle (kcal <-> mins) ----------
   const dash = document.querySelector<HTMLElement>(".dash");
   const segs = document.querySelectorAll<HTMLButtonElement>(".seg");
   const valLabels = document.querySelectorAll<HTMLElement>(".chart__val");
 
   segs.forEach((seg) => {
     seg.addEventListener("click", () => {
-      segs.forEach((s) => s.classList.remove("is-active"));
-      seg.classList.add("is-active");
-      const metric = seg.dataset.metric;
-      dash?.setAttribute("data-metric", metric ?? "kcal");
+      const metric = seg.dataset.metric ?? "kcal";
+      segs.forEach((s) => {
+        const active = s === seg;
+        s.classList.toggle("is-active", active);
+        s.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+      dash?.setAttribute("data-metric", metric);
       valLabels.forEach((v) => {
-        v.textContent = metric === "mins" ? v.dataset.minsVal : v.dataset.kcalVal;
+        v.textContent = metric === "mins" ? (v.dataset.minsVal ?? "") : (v.dataset.kcalVal ?? "");
       });
     });
   });
 
-  // Count-up animation for goal ring percentages.
-  const rings = document.querySelectorAll<HTMLElement>(".ring");
-  const animateRings = () => {
-    rings.forEach((ring) => {
-      const pctEl = ring.querySelector<HTMLElement>(".ring__pct");
-      if (!pctEl || pctEl.dataset.done) return;
-      const target = parseInt(pctEl.dataset.pct ?? "0", 10);
-      pctEl.dataset.done = "1";
-      let cur = 0;
-      const step = () => {
-        cur += Math.max(1, Math.round((target - cur) * 0.08));
-        if (cur >= target) cur = target;
-        pctEl.textContent = `${cur}%`;
-        if (cur < target) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    });
+  // ---------- Count-up for all [data-pct] percentages ----------
+  const pctEls = Array.from(document.querySelectorAll<HTMLElement>("[data-pct]"));
+  const countUp = (el: HTMLElement) => {
+    const target = parseInt(el.dataset.pct ?? "0", 10);
+    if (reduceMotion) { el.textContent = `${target}%`; return; }
+    let cur = 0;
+    const step = () => {
+      cur += Math.max(1, Math.round((target - cur) * 0.1));
+      if (cur >= target) cur = target;
+      el.textContent = `${cur}%`;
+      if (cur < target) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   };
 
-  // Trigger on reveal.
+  // ---------- Count-up for the big kcal headline ----------
+  const bigNum = document.querySelector<HTMLElement>(".dash__big-num");
+  const countUpBig = (el: HTMLElement) => {
+    const target = parseInt(el.dataset.countup ?? "0", 10);
+    if (reduceMotion) { el.textContent = target.toLocaleString(); return; }
+    let cur = 0;
+    const step = () => {
+      cur += Math.max(7, Math.round((target - cur) * 0.06));
+      if (cur >= target) cur = target;
+      el.textContent = cur.toLocaleString();
+      if (cur < target) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
+  // ---------- Stroke-dashoffset reveal for all progress arcs ----------
+  const arcs = Array.from(document.querySelectorAll<SVGCircleElement>("[data-target-offset]"));
+  if (!reduceMotion) {
+    // Park arcs at "empty" until revealed so the draw-in is visible.
+    arcs.forEach((arc) => {
+      const full = parseFloat(arc.getAttribute("pathLength") ?? "0") || arc.getTotalLength();
+      arc.style.strokeDashoffset = String(full);
+    });
+  }
+
+  let revealed = false;
+  const revealAll = () => {
+    if (revealed) return;
+    revealed = true;
+    // Ensure the CSS-gated animations (bar grow, fill width) fire even if the
+    // global reveal observer is wired differently. Adding twice is a no-op.
+    dash?.classList.add("is-visible");
+    // Animate arcs to their real target offset.
+    arcs.forEach((arc) => {
+      const target = arc.dataset.targetOffset ?? "0";
+      requestAnimationFrame(() => { arc.style.strokeDashoffset = target; });
+    });
+    pctEls.forEach(countUp);
+    if (bigNum) countUpBig(bigNum);
+  };
+
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
-        if (e.isIntersecting) {
-          animateRings();
-          io.disconnect();
-        }
+        if (e.isIntersecting) { revealAll(); io.disconnect(); }
       });
     },
-    { threshold: 0.4 }
+    { threshold: 0.35 }
   );
-  const progress = document.querySelector(".dash");
-  if (progress) io.observe(progress);
+  if (dash) io.observe(dash);
 </script>

@@ -1,0 +1,359 @@
+---
+/**
+ * Showcase.astro — PULSE cinematic lifestyle showcase
+ * Part 1: editorial split feature (image + copy)
+ * Part 2: full-bleed cinematic image band with overlaid quote
+ */
+---
+
+<section id="showcase" class="section showcase">
+  <div class="container">
+
+    <!-- ============================================================
+         PART 1 — Editorial split feature
+         ============================================================ -->
+    <div class="split reveal">
+
+      <!-- LEFT: dramatic photo with floating frosted-glass stat badge -->
+      <figure class="feature-media">
+        <div class="feature-media__frame">
+          <img
+            class="feature-media__img"
+            src="https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=900&h=1100&q=80"
+            alt="Moody portrait of an athletic man mid-training in low light, head bowed, focused."
+            width="900"
+            height="1100"
+            loading="lazy"
+            decoding="async"
+          />
+          <!-- decorative top tint -->
+          <span class="feature-media__tint" aria-hidden="true"></span>
+        </div>
+
+        <!-- floating frosted-glass stat badge -->
+        <div class="stat-badge" aria-hidden="false">
+          <span class="stat-badge__value">38<span class="stat-badge__unit">min</span></span>
+          <span class="stat-badge__label">Avg session</span>
+        </div>
+      </figure>
+
+      <!-- RIGHT: copy -->
+      <div class="feature-copy">
+        <span class="eyebrow">The PULSE method</span>
+        <h2 class="section-title">
+          Fitness that fits your <em>actual</em> life.
+        </h2>
+        <p class="section-lead">
+          No marathons. No guilt trips. Just 38-minute sessions engineered to
+          push you forward — built around your schedule, your goals, and the
+          body you actually live in.
+        </p>
+
+        <ul class="feature-list">
+          <li class="feature-list__item">
+            <span class="feature-list__icon feature-list__icon--lime" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 11 8 15 16 5"/></svg>
+            </span>
+            <span><strong>Progressive 12-week programs</strong> that adapt as you get stronger.</span>
+          </li>
+          <li class="feature-list__item">
+            <span class="feature-list__icon feature-list__icon--orange" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 11 8 15 16 5"/></svg>
+            </span>
+            <span><strong>Coach in your pocket</strong> — form checks and feedback on demand.</span>
+          </li>
+          <li class="feature-list__item">
+            <span class="feature-list__icon feature-list__icon--pink" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 11 8 15 16 5"/></svg>
+            </span>
+            <span><strong>Zero equipment? No problem.</strong> Bodyweight tracks for anywhere.</span>
+          </li>
+          <li class="feature-list__item">
+            <span class="feature-list__icon feature-list__icon--blue" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 11 8 15 16 5"/></svg>
+            </span>
+            <span><strong>Recovery built in</strong> — because rest is where the gains happen.</span>
+          </li>
+        </ul>
+
+        <a href="#how-it-works" class="btn btn--ghost">
+          See how it works
+          <svg class="btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         PART 2 — Cinematic image band
+         ============================================================ -->
+    <figure class="band reveal">
+      <img
+        class="band__img"
+        src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&h=600&q=80"
+        alt="Dimly lit gym interior with a single figure training under dramatic light."
+        width="1600"
+        height="600"
+        loading="lazy"
+        decoding="async"
+      />
+
+      <!-- gradient overlays: sides → center, plus bottom fade -->
+      <span class="band__overlay band__overlay--sides" aria-hidden="true"></span>
+      <span class="band__overlay band__overlay--bottom" aria-hidden="true"></span>
+
+      <figcaption class="band__content">
+        <span class="chip chip--lime band__chip">Daily discipline</span>
+        <p class="band__quote">Show up. <em>Every single day.</em></p>
+        <p class="band__sub">Small reps, repeated relentlessly, compound into a body you'll recognize as your own.</p>
+      </figcaption>
+    </figure>
+
+  </div>
+</section>
+
+<style>
+  /* ============================================================
+     PART 1 — Editorial split feature
+     ============================================================ */
+  .showcase { overflow-x: clip; }
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr); /* ~55/45 */
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+  }
+
+  /* --- Left: media --- */
+  .feature-media {
+    position: relative;
+    margin: 0;
+  }
+
+  .feature-media__frame {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    background: var(--bg-elev-2);
+    box-shadow:
+      var(--shadow-lg),
+      0 0 0 1px var(--border),
+      0 0 70px -10px rgba(212, 255, 58, 0.18); /* subtle lime rim glow */
+    transition: box-shadow 0.4s ease;
+  }
+  .feature-media__frame:hover {
+    box-shadow:
+      var(--shadow-lg),
+      0 0 0 1px var(--border-strong),
+      0 0 90px -8px rgba(212, 255, 58, 0.3);
+  }
+
+  .feature-media__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    display: block;
+  }
+
+  .feature-media__tint {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, transparent 40%, rgba(8, 8, 11, 0.55) 100%),
+      radial-gradient(120% 80% at 80% 0%, rgba(212, 255, 58, 0.10), transparent 60%);
+    pointer-events: none;
+  }
+
+  /* floating frosted-glass stat badge */
+  .stat-badge {
+    position: absolute;
+    left: clamp(14px, 3vw, 24px);
+    bottom: clamp(14px, 3vw, 24px);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 18px;
+    border-radius: 16px;
+    background: rgba(20, 20, 26, 0.55);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: var(--shadow);
+    max-width: 180px;
+  }
+  .stat-badge__value {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(24px, 3vw, 30px);
+    line-height: 1;
+    color: var(--lime);
+    letter-spacing: -0.02em;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .stat-badge__unit {
+    font-size: 0.5em;
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+  .stat-badge__label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* --- Right: copy --- */
+  .feature-copy {
+    min-width: 0;
+  }
+  .feature-copy .btn { margin-top: 8px; }
+  .btn__arrow { width: 18px; height: 18px; transition: transform 0.18s ease; }
+  .btn:hover .btn__arrow { transform: translateX(3px); }
+
+  .feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 32px 0 28px;
+  }
+  .feature-list__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: clamp(15px, 1.6vw, 16.5px);
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .feature-list__item strong { color: var(--text); font-weight: 600; }
+
+  .feature-list__icon {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    margin-top: 1px;
+    border: 1px solid currentColor;
+  }
+  .feature-list__icon svg { width: 14px; height: 14px; }
+  .feature-list__icon--lime  { color: var(--lime);   background: rgba(212, 255, 58, 0.10); border-color: rgba(212, 255, 58, 0.35); }
+  .feature-list__icon--orange{ color: var(--orange); background: rgba(255, 90, 44, 0.10); border-color: rgba(255, 90, 44, 0.35); }
+  .feature-list__icon--pink  { color: var(--pink);   background: rgba(255, 46, 136, 0.10); border-color: rgba(255, 46, 136, 0.35); }
+  .feature-list__icon--blue  { color: var(--blue);   background: rgba(46, 230, 255, 0.10); border-color: rgba(46, 230, 255, 0.35); }
+
+  /* ============================================================
+     PART 2 — Cinematic image band
+     ============================================================ */
+  .band {
+    position: relative;
+    margin-top: clamp(72px, 10vw, 120px);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    height: clamp(280px, 40vw, 440px);
+    background: var(--bg-elev-2);
+    box-shadow: var(--shadow-lg);
+    isolation: isolate;
+  }
+  .band__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 0;
+  }
+
+  /* side vignette: dark on left/right edges → clear in the middle */
+  .band__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .band__overlay--sides {
+    background:
+      linear-gradient(90deg,
+        rgba(8, 8, 11, 0.92) 0%,
+        rgba(8, 8, 11, 0.55) 18%,
+        rgba(8, 8, 11, 0.25) 40%,
+        rgba(8, 8, 11, 0.25) 60%,
+        rgba(8, 8, 11, 0.55) 82%,
+        rgba(8, 8, 11, 0.92) 100%);
+  }
+  .band__overlay--bottom {
+    background:
+      linear-gradient(180deg, transparent 45%, rgba(8, 8, 11, 0.85) 100%);
+  }
+
+  .band__content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 14px;
+    padding: clamp(28px, 6vw, 64px) var(--gut);
+    max-width: 900px;
+    margin-inline: auto;
+  }
+
+  .band__chip { margin-bottom: 4px; }
+
+  .band__quote {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(30px, 6vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    text-wrap: balance;
+  }
+  .band__quote em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--lime), var(--blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .band__sub {
+    color: var(--text-muted);
+    font-size: clamp(14px, 1.8vw, 17px);
+    max-width: 52ch;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  /* ============================================================
+     Responsive
+     ============================================================ */
+  @media (max-width: 860px) {
+    .split {
+      grid-template-columns: 1fr;
+      gap: clamp(36px, 8vw, 56px);
+    }
+    .feature-copy { order: 2; }
+    /* image stays first for visual impact on mobile */
+    .feature-list { margin: 28px 0 24px; }
+    .feature-media__frame { aspect-ratio: 4 / 5; max-width: 520px; }
+  }
+
+  @media (max-width: 480px) {
+    .feature-list__item { font-size: 14.5px; }
+    .stat-badge { padding: 12px 14px; }
+  }
+
+  /* Reveal animation already provided by global .reveal / .is-visible */
+</style>

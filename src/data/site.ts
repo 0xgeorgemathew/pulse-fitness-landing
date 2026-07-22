@@ -13,7 +13,7 @@ export const site = {
   tagline: "Train like you mean it.",
   description:
     "PULSE is the high-energy fitness app that turns ambition into routine. Real coaches, smart tracking, and workouts that actually move the needle.",
-  heroImage: img("photo-1534258936925-c58bed479fcb", 1600, 1000),
+  heroImage: img("photo-1517836357463-d25dfeac3438", 1600, 1000),
 };
 
 export const stats = [
@@ -49,7 +49,7 @@ export const workouts: Workout[] = [
     accent: "orange",
     blurb: "Progressive compound lifts to build raw, functional power.",
     moves: ["Back squat", "Deadlift", "Bench", "Weighted pull-up"],
-    image: img("photo-1538805060514-97d9cc17730c", 800, 600),
+    image: img("photo-1607962837359-5e7e89f86776", 800, 600),
   },
   {
     id: "afterburn",
@@ -62,7 +62,7 @@ export const workouts: Workout[] = [
     accent: "pink",
     blurb: "Tabata-style intervals that keep burning calories for hours.",
     moves: ["Burpees", "Box jumps", "Kettlebell swing", "Sprint"],
-    image: img("photo-1574680096145-d05b474e2155", 800, 600),
+    image: img("photo-1599058917212-d750089bc07e", 800, 600),
   },
   {
     id: "deep-flow",
@@ -75,7 +75,7 @@ export const workouts: Workout[] = [
     accent: "blue",
     blurb: "Slow vinyasa to unlock mobility and reset your nervous system.",
     moves: ["Sun A", "Pigeon", "Spinal twist", "Savasana"],
-    image: img("photo-1544367567-0f2fcb009e0b", 800, 600),
+    image: img("photo-1594381898411-846e7d193883", 800, 600),
   },
   {
     id: "shadow-round",
@@ -88,7 +88,7 @@ export const workouts: Workout[] = [
     accent: "lime",
     blurb: "Six three-minute rounds of shadow boxing + footwork drills.",
     moves: ["Jab-cross", "Slip roll", "Combos", "Conditioning"],
-    image: img("photo-1549719386-74dfcbf7dbed", 800, 600),
+    image: img("photo-1546483875-ad9014c88eba", 800, 600),
   },
   {
     id: "engine-room",
@@ -101,7 +101,7 @@ export const workouts: Workout[] = [
     accent: "blue",
     blurb: "Zone-2 endurance work that builds a tireless aerobic base.",
     moves: ["Row", "Bike", "Run", "Sled push"],
-    image: img("photo-1551698618-1dfe5d97d256", 800, 600),
+    image: img("photo-1552674605-db6ffd4facb5", 800, 600),
   },
   {
     id: "reset",
@@ -114,7 +114,7 @@ export const workouts: Workout[] = [
     accent: "lime",
     blurb: "Targeted mobility flow for recovery days and tight joints.",
     moves: ["Hip openers", "T-spine", "Banded work", "Breath"],
-    image: img("photo-1518611012118-696072aa579a", 800, 600),
+    image: img("photo-1518310383802-640c2de311b2", 800, 600),
   },
 ];
 
@@ -138,7 +138,7 @@ export const coaches: Coach[] = [
     accent: "orange",
     years: 12,
     cred: "NSCA-CSCS",
-    image: img("photo-1568602471122-7832951cc4c5", 600, 600),
+    image: img("photo-1463453091185-61582044d556", 600, 700),
   },
   {
     name: "Lena Cruz",
@@ -148,7 +148,7 @@ export const coaches: Coach[] = [
     accent: "pink",
     years: 9,
     cred: "NASM-CPT",
-    image: img("photo-1438761681033-6461ffad8d80", 600, 600),
+    image: img("photo-1488426862026-3ee34a7d66df", 600, 700),
   },
   {
     name: "Priya Anand",
@@ -158,7 +158,7 @@ export const coaches: Coach[] = [
     accent: "blue",
     years: 11,
     cred: "RYT-500",
-    image: img("photo-1594381898411-846e7d193883", 600, 600),
+    image: img("photo-1544005313-94ddf0286df2", 600, 700),
   },
   {
     name: "Diego Marín",
@@ -168,7 +168,7 @@ export const coaches: Coach[] = [
     accent: "lime",
     years: 14,
     cred: "Ex-pro · 47-3",
-    image: img("photo-1507003211169-0a1dd7228f2d", 600, 600),
+    image: img("photo-1534528741775-53994a69daeb", 600, 700),
   },
 ];
 

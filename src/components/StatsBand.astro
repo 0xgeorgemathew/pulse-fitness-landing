@@ -1,0 +1,353 @@
+---
+/**
+ * StatsBand.astro — PULSE
+ * Bold animated stats band with count-up numbers triggered on scroll.
+ */
+const accentVar = {
+  lime: "var(--lime)",
+  orange: "var(--orange)",
+  pink: "var(--pink)",
+  blue: "var(--blue)",
+};
+
+const accentGlow = {
+  lime: "rgba(212, 255, 58, 0.45)",
+  orange: "rgba(255, 90, 44, 0.45)",
+  pink: "rgba(255, 46, 136, 0.45)",
+  blue: "rgba(46, 230, 255, 0.45)",
+};
+
+type Stat = {
+  value: number;
+  display: string;
+  suffix: string;
+  label: string;
+  accent: keyof typeof accentVar;
+  aria: string;
+  decimals: number;
+};
+
+const stats: Stat[] = [
+  {
+    value: 2_400_000,
+    display: "2.4M",
+    suffix: "+",
+    label: "Active members",
+    accent: "lime",
+    aria: "2.4 million active members",
+    decimals: 0,
+  },
+  {
+    value: 180,
+    display: "180",
+    suffix: "+",
+    label: "Live classes weekly",
+    accent: "orange",
+    aria: "over 180 live classes weekly",
+    decimals: 0,
+  },
+  {
+    value: 98,
+    display: "98",
+    suffix: "%",
+    label: "Goal completion",
+    accent: "blue",
+    aria: "98 percent goal completion",
+    decimals: 0,
+  },
+  {
+    value: 4.9,
+    display: "4.9",
+    suffix: "★",
+    label: "App Store rating",
+    accent: "pink",
+    aria: "4.9 out of 5 App Store rating",
+    decimals: 1,
+  },
+];
+---
+
+<section id="impact" class="section stats-band">
+  <!-- Ambient accent glow backdrop -->
+  <div class="stats-band__glow" aria-hidden="true"></div>
+  <div class="stats-band__grid-bg" aria-hidden="true"></div>
+
+  <div class="container stats-band__inner">
+    <p class="eyebrow stats-band__eyebrow reveal">Numbers that move with you</p>
+
+    <ul class="stats-band__list" role="list">
+      {
+        stats.map((stat, i) => (
+          <li
+            class="stat reveal"
+            style={`--accent:${accentVar[stat.accent]}; --accent-glow:${accentGlow[stat.accent]}; transition-delay:${i * 0.08}s`}
+          >
+            <p class="stat__value" aria-label={stat.aria}>
+              <span
+                class="stat__num"
+                data-countup
+                data-value={stat.value}
+                data-decimals={stat.decimals}
+                data-final={stat.display}
+              >
+                {stat.display}
+              </span>
+              <span class="stat__suffix" aria-hidden="true">{stat.suffix}</span>
+            </p>
+            <span class="stat__label">{stat.label}</span>
+            <span class="sr-only">{stat.aria}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .stats-band {
+    position: relative;
+    padding-block: clamp(64px, 9vw, 112px);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background:
+      radial-gradient(120% 140% at 50% 0%, rgba(212, 255, 58, 0.05), transparent 55%),
+      linear-gradient(180deg, var(--bg-elev), var(--bg));
+    overflow: hidden;
+  }
+
+  /* Soft moving accent glow */
+  .stats-band__glow {
+    position: absolute;
+    inset: -20% 10% auto 10%;
+    height: 320px;
+    background:
+      radial-gradient(closest-side, rgba(255, 46, 136, 0.16), transparent 70%),
+      radial-gradient(closest-side at 80% 50%, rgba(46, 230, 255, 0.14), transparent 70%),
+      radial-gradient(closest-side at 20% 60%, rgba(212, 255, 58, 0.12), transparent 70%);
+    filter: blur(40px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Faint grid texture overlay */
+  .stats-band__grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 50%, #000 35%, transparent 80%);
+    mask-image: radial-gradient(ellipse 70% 80% at 50% 50%, #000 35%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .stats-band__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(36px, 5vw, 56px);
+  }
+
+  .stats-band__eyebrow {
+    text-align: center;
+  }
+
+  .stats-band__list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(24px, 4vw, 56px);
+    width: 100%;
+  }
+
+  .stat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: clamp(16px, 2vw, 24px) 8px;
+  }
+
+  /* Hairline divider between stats */
+  .stat:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: clamp(-12px, -2vw, -28px);
+    top: 18%;
+    bottom: 18%;
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      var(--border-strong) 50%,
+      transparent
+    );
+  }
+
+  .stat__value {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+    font-family: var(--display);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .stat__num {
+    font-size: clamp(44px, 6vw, 72px);
+    /* Accent color with a soft glow for premium feel */
+    color: var(--accent);
+    text-shadow: 0 0 28px var(--accent-glow);
+    font-variant-numeric: tabular-nums;
+    /* Make sure layout doesn't jump as numbers change width */
+    min-width: 1ch;
+  }
+
+  .stat__suffix {
+    font-size: clamp(20px, 2.4vw, 30px);
+    color: var(--accent);
+    text-shadow: 0 0 24px var(--accent-glow);
+    font-weight: 800;
+    opacity: 0.9;
+  }
+
+  .stat__label {
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: clamp(11px, 1.1vw, 12.5px);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 900px) {
+    .stats-band__list {
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(28px, 6vw, 48px) clamp(20px, 4vw, 32px);
+    }
+    /* Drop the vertical dividers in 2-col layout */
+    .stat::after { display: none; }
+  }
+
+  @media (max-width: 540px) {
+    .stats-band__list {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+
+  /* Respect reduced motion: count-up script handles this too, but
+     make sure the visible number is the final value regardless. */
+  @media (prefers-reduced-motion: reduce) {
+    .stat__num { text-shadow: none; }
+  }
+</style>
+
+<script>
+  type CountUpEl = HTMLElement & { __counted?: boolean };
+
+  /**
+   * Ease-out cubic for a smooth, premium deceleration.
+   */
+  function easeOutCubic(t: number): number {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  /**
+   * Format a number for display during count-up.
+   * - Large integers get locale-grouped (e.g. 2,400,000)
+   * - Decimals are padded to the requested precision
+   */
+  function formatNumber(value: number, decimals: number): string {
+    if (decimals > 0) {
+      return value.toFixed(decimals);
+    }
+    return Math.round(value).toLocaleString("en-US");
+  }
+
+  function animateCount(el: CountUpEl): void {
+    const target = Number(el.dataset.value ?? "0");
+    const decimals = Number(el.dataset.decimals ?? "0");
+    const finalDisplay = el.dataset.final ?? String(target);
+    const duration = 1600;
+
+    // Reset to zero before starting
+    el.textContent = formatNumber(0, decimals);
+
+    const start =
+      "performance" in window ? performance.now() : Date.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeOutCubic(progress);
+      const current = target * eased;
+
+      el.textContent = formatNumber(current, decimals);
+
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        // Snap to the designed display value at the end (e.g. "2.4M")
+        el.textContent = finalDisplay;
+      }
+    };
+
+    requestAnimationFrame(tick);
+  }
+
+  function setupCountUp(): void {
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    const elements = Array.from(
+      document.querySelectorAll<CountUpEl>("[data-countup]")
+    );
+
+    if (prefersReduced) {
+      // Show the final display value immediately, no animation.
+      elements.forEach((el) => {
+        el.textContent = el.dataset.final ?? el.textContent ?? "";
+        el.__counted = true;
+      });
+      return;
+    }
+
+    // Fallback if IntersectionObserver isn't available.
+    if (!("IntersectionObserver" in window)) {
+      elements.forEach((el) => animateCount(el));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const el = entry.target as CountUpEl;
+            if (!el.__counted) {
+              el.__counted = true;
+              animateCount(el);
+            }
+            obs.unobserve(el);
+          }
+        }
+      },
+      { threshold: 0.4, rootMargin: "0px 0px -10% 0px" }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+  }
+
+  // Run on initial load. Re-run on Astro view transitions if present.
+  setupCountUp();
+  document.addEventListener("astro:after-swap", setupCountUp, { once: true });
+</script>

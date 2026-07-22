@@ -3,15 +3,16 @@ const links = [
   { href: "#workouts", label: "Workouts" },
   { href: "#progress", label: "Progress" },
   { href: "#coaches", label: "Coaches" },
+  { href: "#stories", label: "Stories" },
   { href: "#pricing", label: "Pricing" },
 ];
 ---
 
-<header class="nav">
+<header class="nav" id="site-nav">
   <div class="container nav__inner">
     <a href="#top" class="brand" aria-label="PULSE home">
       <span class="brand__mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32" width="28" height="28">
+        <svg viewBox="0 0 32 32" width="26" height="26">
           <path
             d="M3 18 L9 18 L12 8 L17 26 L20 13 L22 18 L29 18"
             fill="none" stroke="currentColor" stroke-width="2.6"
@@ -27,7 +28,7 @@ const links = [
 
     <div class="nav__cta">
       <a href="#pricing" class="nav__signin">Sign in</a>
-      <a href="#pricing" class="btn btn--primary">Get the app</a>
+      <a href="#pricing" class="btn btn--primary nav__cta-btn">Get the app</a>
     </div>
 
     <button class="nav__burger" aria-label="Open menu" aria-expanded="false">
@@ -36,8 +37,13 @@ const links = [
   </div>
 
   <div class="nav__mobile" hidden>
-    {links.map((l) => <a href={l.href}>{l.label}</a>)}
-    <a href="#pricing" class="btn btn--primary" style="margin-top:8px;justify-content:center">Get the app</a>
+    <nav class="nav__mobile-links" aria-label="Mobile">
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+    <div class="nav__mobile-cta">
+      <a href="#pricing" class="nav__signin">Sign in</a>
+      <a href="#pricing" class="btn btn--primary">Get the app</a>
+    </div>
   </div>
 </header>
 
@@ -46,11 +52,27 @@ const links = [
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(8, 8, 11, 0.72);
-    backdrop-filter: blur(18px) saturate(140%);
-    -webkit-backdrop-filter: blur(18px) saturate(140%);
-    border-bottom: 1px solid var(--border);
+    /* Transparent at top — scroll state adds the frosted layer */
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 1px solid transparent;
+    transition:
+      background 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      -webkit-backdrop-filter 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
+  /* Premium frosted glass once scrolled */
+  .nav.is-scrolled {
+    background: rgba(8, 8, 11, 0.8);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 10px 40px -16px rgba(0, 0, 0, 0.7);
+  }
+
   .nav__inner {
     display: flex;
     align-items: center;
@@ -59,30 +81,43 @@ const links = [
     gap: 24px;
   }
 
+  /* ---------- Brand ---------- */
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 11px;
     font-weight: 900;
-    letter-spacing: 0.04em;
-    font-size: 19px;
+    letter-spacing: 0.06em;
+    font-size: 18px;
   }
   .brand__mark {
     display: inline-grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: linear-gradient(140deg, rgba(212,255,58,0.18), rgba(212,255,58,0.04));
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: linear-gradient(140deg, rgba(212, 255, 58, 0.20), rgba(212, 255, 58, 0.04));
     border: 1px solid rgba(212, 255, 58, 0.35);
     color: var(--lime);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 0 1px rgba(212, 255, 58, 0.04);
+    transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+  }
+  .brand:hover .brand__mark {
+    border-color: rgba(212, 255, 58, 0.6);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 0 22px rgba(212, 255, 58, 0.35);
+    transform: translateY(-1px);
   }
 
+  /* ---------- Links ---------- */
   .nav__links {
     display: flex;
-    gap: 30px;
+    gap: 32px;
     margin-left: auto;
-    margin-right: 12px;
+    margin-right: 14px;
   }
   .nav__links a {
     font-size: 14.5px;
@@ -90,62 +125,110 @@ const links = [
     color: var(--text-muted);
     transition: color 0.18s ease;
     position: relative;
+    padding-block: 4px;
   }
   .nav__links a:hover { color: var(--text); }
   .nav__links a::after {
     content: "";
     position: absolute;
-    left: 0; bottom: -6px;
+    left: 0; bottom: 0;
     width: 0; height: 2px;
     background: var(--lime);
-    transition: width 0.2s ease;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(212, 255, 58, 0.6);
+    transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .nav__links a:hover::after { width: 100%; }
 
+  /* ---------- CTA ---------- */
   .nav__cta {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
   }
   .nav__signin {
     font-size: 14.5px;
     font-weight: 500;
     color: var(--text-muted);
+    transition: color 0.18s ease;
   }
   .nav__signin:hover { color: var(--text); }
 
+  /* Slightly smaller, tighter pill CTA in the bar */
+  .nav__cta-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  /* ---------- Burger ---------- */
   .nav__burger {
     display: none;
     flex-direction: column;
     gap: 5px;
-    padding: 8px;
+    padding: 9px;
+    border-radius: 10px;
+    transition: background 0.2s ease;
   }
+  .nav__burger:hover { background: var(--bg-elev-2); }
   .nav__burger span {
     width: 22px; height: 2px;
     background: var(--text);
     border-radius: 2px;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: transform 0.22s ease, opacity 0.18s ease;
+  }
+  .nav__burger[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .nav__burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .nav__burger[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
   }
 
+  /* ---------- Mobile panel ---------- */
   .nav__mobile {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 12px var(--gut) 24px;
+    gap: 6px;
+    padding: 14px var(--gut) 26px;
     border-bottom: 1px solid var(--border);
-    background: var(--bg);
+    /* Frosted panel */
+    background: rgba(8, 8, 11, 0.85);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    box-shadow: var(--shadow);
   }
-  .nav__mobile a {
-    padding: 14px 4px;
+  .nav__mobile-links { display: flex; flex-direction: column; }
+  .nav__mobile-links a {
+    padding: 15px 4px;
     font-size: 17px;
     font-weight: 600;
     border-bottom: 1px solid var(--border);
     color: var(--text);
+    transition: color 0.18s ease, padding-left 0.18s ease;
   }
+  .nav__mobile-links a:hover { color: var(--lime); }
+  .nav__mobile-cta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .nav__mobile-cta .nav__signin {
+    padding: 6px 4px;
+    font-size: 15px;
+    text-align: center;
+  }
+  .nav__mobile-cta .btn { justify-content: center; }
 
   @media (max-width: 860px) {
     .nav__links, .nav__cta { display: none; }
     .nav__burger { display: flex; }
+    /* On mobile, keep a light glass so content never disappears behind a fully transparent bar */
+    .nav {
+      background: rgba(8, 8, 11, 0.55);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+    }
   }
   @media (min-width: 861px) {
     .nav__mobile { display: none !important; }
@@ -153,6 +236,7 @@ const links = [
 </style>
 
 <script>
+  // Burger toggle (preserved)
   const burger = document.querySelector(".nav__burger");
   const mobile = document.querySelector(".nav__mobile");
   burger?.addEventListener("click", () => {
@@ -165,4 +249,24 @@ const links = [
       burger.setAttribute("aria-expanded", "false");
     }
   });
+
+  // Scroll state — transparent at top, frosted on scroll (>20px)
+  // Throttled via requestAnimationFrame.
+  const nav = document.getElementById("site-nav");
+  if (nav) {
+    let ticking = false;
+    const SCROLL_THRESHOLD = 20;
+    const update = () => {
+      nav.classList.toggle("is-scrolled", window.scrollY > SCROLL_THRESHOLD);
+      ticking = false;
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    update();
+  }
 </script>

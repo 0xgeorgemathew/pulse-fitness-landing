@@ -46,7 +46,9 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
               loading="lazy"
               decoding="async"
             />
+            {/* Two stacked overlays: base bottom blend + accent tint at top. */}
             <div class="workout__overlay" aria-hidden="true"></div>
+            <div class="workout__tint" aria-hidden="true"></div>
 
             <span class="chip chip--{w.accent} workout__chip">{w.category}</span>
             <span
@@ -120,12 +122,13 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
     color: var(--text-muted);
     background: var(--bg-elev);
     border: 1px solid var(--border);
-    transition: all 0.18s ease;
+    transition: color 0.18s ease, border-color 0.18s ease, box-shadow 0.25s ease, background 0.18s ease;
   }
   .filter:hover { color: var(--text); border-color: var(--border-strong); }
   .filter.is-active {
     background: var(--lime); color: #08080b;
     border-color: var(--lime);
+    box-shadow: 0 0 0 1px var(--lime), 0 0 24px rgba(212, 255, 58, 0.35);
   }
 
   .cards {
@@ -137,19 +140,23 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
   .workout {
     overflow: hidden;
     display: flex; flex-direction: column;
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
   }
   .workout:hover {
-    transform: translateY(-4px);
-    border-color: var(--accent);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-6px);
+    border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+    box-shadow:
+      var(--shadow-lg),
+      0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+      0 0 48px -12px color-mix(in srgb, var(--accent) 50%, transparent);
   }
   .workout.is-hidden { display: none; }
 
   /* ---------- Media / photo thumbnail ---------- */
   .workout__hero {
     position: relative;
-    aspect-ratio: 16 / 10;
+    /* Taller, more editorial media area (matches the 800x600 source). */
+    aspect-ratio: 4 / 3;
     overflow: hidden;
     background: var(--bg-elev-2);
   }
@@ -157,28 +164,42 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Keep the athletic subject reading well at the top of the frame. */
+    object-position: center top;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform;
   }
-  .workout:hover .workout__img { transform: scale(1.06); }
+  .workout:hover .workout__img { transform: scale(1.08); }
 
-  /* Layered overlay: accent tint at top + dark blend at bottom. */
+  /* Layer 1 — base blend: strong anchor into the dark card body. */
   .workout__overlay {
     position: absolute; inset: 0;
-    background:
-      linear-gradient(180deg, color-mix(in srgb, var(--accent) 25%, transparent), transparent 50%),
-      linear-gradient(180deg, transparent 40%, rgba(8, 8, 11, 0.85));
+    background: linear-gradient(180deg, transparent 35%, rgba(8, 8, 11, 0.7) 70%, rgba(8, 8, 11, 0.95));
     pointer-events: none;
   }
+  /* Layer 2 — accent tint washing from the top; intensifies on hover. */
+  .workout__tint {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 30%, transparent), transparent 45%);
+    opacity: 0.85;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+  .workout:hover .workout__tint { opacity: 1; }
 
   /* Meta sitting on the photo */
   .workout__chip {
     position: absolute; top: 14px; left: 14px;
-    z-index: 2;
+    z-index: 3;
+    /* Frosted-glass override of .chip--accent tint for a premium on-photo badge. */
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
   .workout__intensity {
     position: absolute; top: 16px; right: 14px;
-    z-index: 2;
+    z-index: 3;
     display: inline-flex; gap: 3px; align-items: flex-end;
   }
   .workout__intensity .bar {
@@ -190,35 +211,50 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
 
   .workout__play {
     position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    width: 52px; height: 52px;
+    transform: translate(-50%, -50%) scale(0.92);
+    z-index: 3;
+    width: 56px; height: 56px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.92);
     color: #08080b;
     display: grid; place-items: center;
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, box-shadow 0.35s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   }
-  .workout:hover .workout__play { transform: translate(-50%, -50%) scale(1.1); }
+  .workout:hover .workout__play {
+    transform: translate(-50%, -50%) scale(1.12);
+    background: var(--accent);
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent),
+      0 12px 36px rgba(0, 0, 0, 0.55),
+      0 0 40px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
   .workout__play svg { margin-left: 3px; }
 
   .workout__duration {
     position: absolute; bottom: 12px; right: 12px;
-    z-index: 2;
+    z-index: 3;
     font-family: var(--mono);
     font-size: 11px; font-weight: 700;
-    padding: 4px 9px;
-    background: rgba(0, 0, 0, 0.55);
+    letter-spacing: 0.02em;
+    padding: 5px 10px;
+    color: var(--text);
+    background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(8px);
-    border-radius: 6px;
-    border: 1px solid var(--border);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   /* ---------- Body ---------- */
   .workout__body { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
   .workout__title {
     font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
+  }
+  .workout:hover .workout__title {
+    transform: translateY(-2px);
+    color: color-mix(in srgb, var(--accent) 22%, var(--text));
   }
   .workout__blurb {
     color: var(--text-muted); font-size: 14px;
@@ -258,6 +294,15 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
   .workouts__foot {
     display: flex; justify-content: center;
     margin-top: 40px;
+  }
+
+  /* ---------- Motion-safe: kill transforms on hover, keep color/shadow. ---------- */
+  @media (prefers-reduced-motion: reduce) {
+    .workout:hover,
+    .workout:hover .workout__img,
+    .workout:hover .workout__title { transform: none; }
+    .workout:hover .workout__play { transform: translate(-50%, -50%); }
+    .workout:hover .workout__tint { opacity: 0.85; }
   }
 </style>
 

@@ -22,32 +22,40 @@ const accentVar = {
 
     <div class="coaches-grid">
       {coaches.map((c) => (
-        <article class="card coach reveal" style={`--accent:${accentVar[c.accent]}`}>
-          <div class="coach__photo">
-            <img
-              class="coach__img"
-              src={c.image}
-              alt={`Portrait of ${c.name}, ${c.role}`}
-              width="600"
-              height="600"
-              loading="lazy"
-              decoding="async"
-            />
-            <span class="coach__cred">{c.cred}</span>
-            <div class="coach__overlay">
-              <div class="coach__overlay-inner">
-                <h3 class="coach__name">{c.name}</h3>
-                <div class="coach__role">{c.role}</div>
-              </div>
+        <article class="coach reveal" style={`--accent:${accentVar[c.accent]}`}>
+          {/* The photo IS the card — full bleed */}
+          <img
+            class="coach__img"
+            src={c.image}
+            alt={`Portrait of ${c.name}, ${c.role}`}
+            width="600"
+            height="700"
+            loading="lazy"
+            decoding="async"
+          />
+
+          {/* Giant ghosted monogram behind the type, low-key editorial flourish */}
+          <span class="coach__mono" aria-hidden="true">{c.initials}</span>
+
+          {/* Frosted credential pill, top-right */}
+          <span class="coach__cred">{c.cred}</span>
+
+          {/* "+" follow affordance, top-left, revealed on hover */}
+          <span class="coach__plus" role="button" tabindex="0" aria-label={`Follow ${c.name}`}>
+            <span aria-hidden="true">+</span>
+          </span>
+
+          {/* Bottom info stack overlaid on the photo */}
+          <div class="coach__info">
+            <div class="coach__id">
+              <h3 class="coach__name">{c.name}</h3>
+              <div class="coach__role">{c.role}</div>
             </div>
-          </div>
-          <div class="coach__body">
-            <div class="coach__spec">{c.specialty}</div>
-            <div class="coach__meta">
-              <span><strong>{c.years}</strong> yrs experience</span>
-              <span class="coach__follow" role="button" tabindex="0">
-                <span class="coach__follow-plus" aria-hidden="true">+</span> Follow
-              </span>
+
+            {/* Frosted detail strip slides up on hover */}
+            <div class="coach__detail">
+              <span class="coach__spec">{c.specialty}</span>
+              <span class="coach__years"><strong>{c.years}</strong> yrs</span>
             </div>
           </div>
         </article>
@@ -59,28 +67,37 @@ const accentVar = {
 <style>
   .coaches-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 20px;
   }
 
+  /* ============================================================
+     The card = the photo. Portrait poster aspect.
+     ============================================================ */
   .coach {
+    position: relative;
+    aspect-ratio: 4 / 5;
     overflow: hidden;
-    display: flex; flex-direction: column;
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-elev-2);
+    isolation: isolate; /* keep z-index local */
+    transition:
+      transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
   }
-  .coach:hover {
+  .coach:hover,
+  .coach:focus-within {
     transform: translateY(-6px);
-    border-color: var(--accent);
-    box-shadow: var(--shadow-lg);
+    border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+    box-shadow:
+      var(--shadow-lg),
+      0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
+      0 24px 60px -28px color-mix(in srgb, var(--accent) 55%, transparent);
   }
 
-  /* ---- Photo region (poster) ---- */
-  .coach__photo {
-    position: relative;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    background: var(--bg-elev-2);
-  }
+  /* ---- Full-bleed photo ---- */
   .coach__img {
     position: absolute;
     inset: 0;
@@ -88,107 +105,229 @@ const accentVar = {
     height: 100%;
     object-fit: cover;
     object-position: center top;
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 0;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
   }
-  .coach:hover .coach__img { transform: scale(1.05); }
+  .coach:hover .coach__img,
+  .coach:focus-within .coach__img {
+    transform: scale(1.06);
+  }
 
-  /* Gradient overlays: strong bottom fade + subtle accent tint at top */
-  .coach__photo::before {
+  /* ---- Overlays ----
+     Strong bottom fade for legibility + subtle accent tint at top.
+     On hover the bottom fade deepens so the type pops. */
+  .coach::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: 1;
     pointer-events: none;
     background:
-      linear-gradient(180deg, color-mix(in srgb, var(--accent) 30%, transparent), transparent 40%),
-      linear-gradient(180deg, transparent 30%, rgba(8, 8, 11, 0.92));
+      linear-gradient(180deg, color-mix(in srgb, var(--accent) 28%, transparent), transparent 40%),
+      linear-gradient(180deg, transparent 25%, rgba(8, 8, 11, 0.55) 55%, rgba(8, 8, 11, 0.95));
+    transition: opacity 0.4s ease;
+  }
+  .coach:hover::before,
+  .coach:focus-within::before {
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--accent) 36%, transparent), transparent 42%),
+      linear-gradient(180deg, transparent 18%, rgba(8, 8, 11, 0.68) 50%, rgba(8, 8, 11, 0.98));
   }
 
-  /* Frosted credential badge, top-right */
+  /* Hairline accent edge glow inside the card */
+  .coach::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px transparent;
+    transition: box-shadow 0.3s ease;
+  }
+  .coach:hover::after,
+  .coach:focus-within::after {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  /* ---- Ghosted monogram — large, low opacity, sits behind type ---- */
+  .coach__mono {
+    position: absolute;
+    right: 10px;
+    bottom: 78px;
+    z-index: 2;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 96px;
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    color: rgba(255, 255, 255, 0.06);
+    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* ---- Frosted credential pill, top-right ---- */
   .coach__cred {
     position: absolute;
-    top: 12px; right: 12px;
-    z-index: 3;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
     font-family: var(--mono);
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 0.04em;
-    padding: 5px 9px;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 999px;
     color: var(--accent);
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
   }
 
-  /* Name + role overlaid on the photo bottom */
-  .coach__overlay {
+  /* ---- "+" follow affordance, top-left, fades in on hover ---- */
+  .coach__plus {
     position: absolute;
-    left: 0; right: 0; bottom: 0;
-    z-index: 2;
-    padding: 18px 20px 16px;
-    pointer-events: none;
+    top: 12px;
+    left: 12px;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    cursor: pointer;
+    user-select: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease,
+      background 0.2s ease,
+      color 0.2s ease;
   }
-  .coach__overlay-inner { pointer-events: auto; }
+  .coach:hover .coach__plus,
+  .coach:focus-within .coach__plus {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .coach__plus:hover,
+  .coach__plus:focus-visible {
+    background: var(--accent);
+    color: #08080b;
+    outline: none;
+  }
+
+  /* ---- Bottom info stack ---- */
+  .coach__info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    padding: 18px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .coach__id { display: flex; flex-direction: column; }
+
   .coach__name {
     font-family: var(--display);
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 800;
     letter-spacing: -0.02em;
-    line-height: 1.15;
+    line-height: 1.1;
     color: #fff;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
   }
   .coach__role {
     font-size: 13px;
-    color: var(--accent);
     font-weight: 600;
-    margin-top: 3px;
+    color: var(--accent);
+    margin-top: 4px;
     text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
   }
 
-  /* ---- Card footer ---- */
-  .coach__body {
-    padding: 14px 20px 18px;
-    display: flex; flex-direction: column;
-    gap: 12px;
+  /* Frosted detail strip — slides up on hover, shows specialty + years */
+  .coach__detail {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--text);
+    background: rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .coach:hover .coach__detail,
+  .coach:focus-within .coach__detail {
+    opacity: 1;
+    transform: translateY(0);
   }
   .coach__spec {
-    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .coach__years {
+    flex: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
     color: var(--text-muted);
   }
-  .coach__meta {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 10px;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-  .coach__meta strong { color: var(--text); font-weight: 700; }
-
-  .coach__follow {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-weight: 700;
-    font-size: 12px;
-    letter-spacing: 0.02em;
-    padding: 6px 12px;
-    border-radius: 999px;
+  .coach__years strong {
     color: var(--accent);
-    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    font-weight: 700;
+    font-size: 13px;
   }
-  .coach__follow-plus { font-size: 13px; line-height: 1; }
-  .coach__follow:hover,
-  .coach__follow:focus-visible {
-    background: var(--accent);
-    color: #08080b;
-    border-color: var(--accent);
-    outline: none;
+
+  /* ---- Reduced motion: show detail strip statically, skip transforms ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .coach,
+    .coach__img,
+    .coach__plus,
+    .coach__detail,
+    .coach::before,
+    .coach::after {
+      transition: none !important;
+    }
+    /* Keep key info reachable without hover (touch / no-hover users) */
+    .coach__detail { opacity: 1; transform: none; }
+    .coach__plus { opacity: 1; transform: none; }
+  }
+
+  /* ---- Touch / no-hover: reveal detail by default so it isn't hidden ---- */
+  @media (hover: none) {
+    .coach__detail { opacity: 1; transform: none; }
+    .coach__plus { opacity: 0.85; transform: none; }
+  }
+
+  /* ---- Small screens: keep readable ---- */
+  @media (max-width: 480px) {
+    .coach__name { font-size: 20px; }
+    .coach__mono { font-size: 76px; bottom: 74px; }
   }
 </style>
