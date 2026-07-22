@@ -7,7 +7,7 @@ import { stats } from "../data/site";
   <div class="hero__photo" aria-hidden="true">
     <img
       class="hero__photo-img"
-      src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&h=1000&q=80"
+      src="/img/photo-1517836357463-d25dfeac3438_1600x1000.jpg"
       alt=""
       aria-hidden="true"
       loading="eager"
@@ -36,21 +36,84 @@ import { stats } from "../data/site";
       </h1>
 
       <p class="hero__lead">
-        PULSE is the high-energy fitness app that turns ambition into routine.
-        World-class coaches, smart progress tracking, and workouts that
-        actually move the needle — wherever you train.
+        Get a personalized week of workouts — free, no signup. World-class
+        coaches, smart tracking, and sessions that actually move the needle.
+        Love it, then go Pro.
       </p>
 
+      <!-- ============================================================
+           FREE VALUE FIRST (reciprocity)
+           Pick a goal -> instantly see a 3-workout starter plan.
+           No gate, no email, no card. Value before the ask.
+           ============================================================ -->
+      <div class="freebuild" aria-labelledby="freebuild-label">
+        <div class="freebuild__head">
+          <span id="freebuild-label" class="freebuild__label">
+            Build my free week
+          </span>
+          <span class="freebuild__tag">No signup · No card</span>
+        </div>
+
+        <div
+          class="freebuild__chips"
+          role="group"
+          aria-label="Choose your primary goal to preview a free starter week"
+        >
+          <button type="button" class="goalchip" data-goal="lose" aria-pressed="false">
+            Lose weight
+          </button>
+          <button type="button" class="goalchip" data-goal="muscle" aria-pressed="false">
+            Build muscle
+          </button>
+          <button type="button" class="goalchip" data-goal="strong" aria-pressed="false">
+            Get strong
+          </button>
+          <button type="button" class="goalchip" data-goal="move" aria-pressed="false">
+            Move better
+          </button>
+        </div>
+
+        <!-- Revealed starter plan (hidden until a chip is chosen) -->
+        <div
+          class="freebuild__reveal"
+          id="freebuild-reveal"
+          hidden
+          aria-live="polite"
+        >
+          <div class="freebuild__reveal-head">
+            <span class="freebuild__reveal-eyebrow">Here's your starter plan ↓</span>
+            <span class="freebuild__reveal-title" id="freebuild-title">
+              Your week
+            </span>
+            <span class="freebuild__reveal-meta" id="freebuild-meta">
+              3 sessions · free preview
+            </span>
+          </div>
+          <ul class="freebuild__list" id="freebuild-list">
+            <!-- Filled by script -->
+          </ul>
+          <p class="freebuild__note">
+            Yours to keep — the full 7-day plan unlocks when you start your trial.
+          </p>
+        </div>
+      </div>
+
       <div class="hero__actions">
-        <a href="#pricing" class="btn btn--primary btn--lg">
-          Start 14-day free trial
+        <!-- PRIMARY = receive value first (reciprocity) -->
+        <a href="#workouts" class="btn btn--primary btn--lg">
+          Build my free week
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h9M8 4l4 4-4 4" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </a>
-        <a href="#workouts" class="btn btn--ghost btn--lg">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <!-- SECONDARY = commitment (deferred until value delivered) -->
+        <a href="#pricing" class="btn btn--ghost btn--lg">
+          Start 14-day trial
+        </a>
+        <!-- TERTIARY = low-pressure -->
+        <a href="#workouts" class="btn btn--ghost btn--lg hero__actions--ghost-tertiary">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
             <path d="M6.5 5.5 L10.5 8 L6.5 10.5 Z" fill="currentColor"/>
           </svg>
@@ -59,18 +122,47 @@ import { stats } from "../data/site";
       </div>
 
       <p class="hero__fineprint">
-        No credit card. Cancel anytime. <span>Used by 2.4M+ athletes.</span>
+        Free week is genuinely free. <span>Used by 2.4M+ athletes.</span>
       </p>
     </div>
 
     <div class="hero__visual reveal" style="transition-delay:0.12s">
-      <!-- Stylized app preview / phone mockup -->
+      <!-- Stylized app preview / phone mockup — tied to "Your week" concept -->
       <div class="phone">
         <div class="phone__notch"></div>
         <div class="phone__screen">
           <div class="phone__topbar">
-            <span class="phone__greet">Good morning, Alex</span>
-            <span class="phone__avatar" aria-hidden="true">A</span>
+            <span class="phone__greet">Your week</span>
+            <span class="phone__pill">Free preview</span>
+          </div>
+
+          <!-- Week grid: 3 active workout tiles reinforce "free week" value -->
+          <div class="phone__week">
+            <div class="phone__day phone__day--active">
+              <span class="phone__day-d">Mon</span>
+              <span class="phone__day-t">Afterburn</span>
+              <span class="phone__day-m">HIIT · 28m</span>
+            </div>
+            <div class="phone__day phone__day--rest">
+              <span class="phone__day-d">Tue</span>
+              <span class="phone__day-t">Rest</span>
+              <span class="phone__day-m">Recovery</span>
+            </div>
+            <div class="phone__day phone__day--active">
+              <span class="phone__day-d">Wed</span>
+              <span class="phone__day-t">Iron Stack</span>
+              <span class="phone__day-m">Strength · 42m</span>
+            </div>
+            <div class="phone__day phone__day--active">
+              <span class="phone__day-d">Thu</span>
+              <span class="phone__day-t">Reset</span>
+              <span class="phone__day-m">Mobility · 18m</span>
+            </div>
+            <div class="phone__day phone__day--locked">
+              <span class="phone__day-d">Fri</span>
+              <span class="phone__day-t">—</span>
+              <span class="phone__day-m">Unlocks in trial</span>
+            </div>
           </div>
 
           <div class="phone__ring">
@@ -87,8 +179,8 @@ import { stats } from "../data/site";
               </defs>
             </svg>
             <div class="phone__ring-center">
-              <span class="phone__ring-val">72%</span>
-              <span class="phone__ring-lbl">weekly goal</span>
+              <span class="phone__ring-val">3/5</span>
+              <span class="phone__ring-lbl">free sessions</span>
             </div>
           </div>
 
@@ -101,7 +193,7 @@ import { stats } from "../data/site";
             </div>
           </div>
 
-          <div class="phone__bars">
+          <div class="phone__bars" aria-hidden="true">
             <div class="phone__bar" style="--h:40%"></div>
             <div class="phone__bar" style="--h:70%"></div>
             <div class="phone__bar" style="--h:25%"></div>
@@ -118,13 +210,13 @@ import { stats } from "../data/site";
       <!-- Floating frosted-glass stat badges -->
       <div class="hero__badge hero__badge--streak">
         <span class="hero__badge-dot" aria-hidden="true"></span>
-        <span class="hero__badge-num">47</span>
-        <span class="hero__badge-lbl">day streak</span>
+        <span class="hero__badge-num">5</span>
+        <span class="hero__badge-lbl">free workouts</span>
       </div>
       <div class="hero__badge hero__badge--kcal">
         <span class="hero__badge-dot" aria-hidden="true"></span>
-        <span class="hero__badge-num">540</span>
-        <span class="hero__badge-lbl">kcal · today</span>
+        <span class="hero__badge-num">$0</span>
+        <span class="hero__badge-lbl">no card needed</span>
       </div>
     </div>
   </div>
@@ -234,7 +326,6 @@ import { stats } from "../data/site";
     line-height: 0.98;
     letter-spacing: -0.035em;
     margin-bottom: 26px;
-    /* legibility lift against the photo */
     text-shadow: 0 2px 30px rgba(0, 0, 0, 0.55);
   }
   .hero__title-accent {
@@ -245,12 +336,10 @@ import { stats } from "../data/site";
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    /* vivid glow so the gradient pops against the photo */
     filter:
       drop-shadow(0 2px 14px rgba(212, 255, 58, 0.35))
       drop-shadow(0 4px 26px rgba(46, 230, 255, 0.28));
   }
-  /* Animated accent underline */
   .hero__title-accent::after {
     content: "";
     position: absolute;
@@ -274,8 +363,179 @@ import { stats } from "../data/site";
     color: var(--text-muted);
     font-size: clamp(16px, 2vw, 19px);
     max-width: 52ch;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
     text-shadow: 0 1px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  /* ============================================================
+     FREE VALUE-FIRST BUILDER (reciprocity micro-interaction)
+     ============================================================ */
+  .freebuild {
+    position: relative;
+    background: rgba(255, 255, 255, 0.035);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    backdrop-filter: blur(14px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    padding: 18px 18px 20px;
+    margin-bottom: 24px;
+    box-shadow:
+      0 12px 40px -16px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+  .freebuild__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .freebuild__label {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .freebuild__label::before {
+    content: "✦";
+    color: var(--lime);
+    font-size: 13px;
+    filter: drop-shadow(0 0 6px rgba(212, 255, 58, 0.6));
+  }
+  .freebuild__tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--lime);
+    background: rgba(212, 255, 58, 0.1);
+    border: 1px solid rgba(212, 255, 58, 0.28);
+    padding: 4px 8px;
+    border-radius: 999px;
+  }
+
+  .freebuild__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .goalchip {
+    font-family: var(--sans);
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: color 0.18s var(--ease-out),
+                background 0.18s var(--ease-out),
+                border-color 0.18s var(--ease-out),
+                transform 0.18s var(--ease-out),
+                box-shadow 0.2s var(--ease-out);
+  }
+  .goalchip:hover {
+    color: var(--text);
+    border-color: rgba(212, 255, 58, 0.5);
+    transform: translateY(-1px);
+  }
+  .goalchip:focus-visible {
+    outline: 2px solid var(--lime);
+    outline-offset: 2px;
+  }
+  .goalchip[aria-pressed="true"] {
+    color: #08080b;
+    background: var(--lime);
+    border-color: var(--lime);
+    box-shadow: 0 0 24px rgba(212, 255, 58, 0.45);
+  }
+
+  /* Revealed starter plan */
+  .freebuild__reveal {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.12);
+    animation: revealIn 0.4s var(--ease-out);
+  }
+  .freebuild__reveal[hidden] { display: none; }
+  @keyframes revealIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .freebuild__reveal-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 12px;
+  }
+  .freebuild__reveal-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--lime);
+  }
+  .freebuild__reveal-title {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+  }
+  .freebuild__reveal-meta {
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .freebuild__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .freebuild__list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .freebuild__num {
+    flex-shrink: 0;
+    width: 26px; height: 26px;
+    display: grid; place-items: center;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: #08080b;
+    background: linear-gradient(135deg, var(--lime), var(--blue));
+  }
+  .freebuild__w-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .freebuild__w-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  .freebuild__note {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-style: italic;
   }
 
   .hero__actions {
@@ -306,7 +566,6 @@ import { stats } from "../data/site";
     border-radius: 44px;
     padding: 12px;
     border: 1.5px solid rgba(255, 255, 255, 0.14);
-    /* premium layered shadow: deep drop + accent halo + edge ring */
     box-shadow:
       0 50px 90px -28px rgba(0, 0, 0, 0.85),
       0 28px 60px -30px rgba(212, 255, 58, 0.4),
@@ -347,28 +606,79 @@ import { stats } from "../data/site";
     width: 100%; height: 100%;
     background: linear-gradient(170deg, #14141c, #0a0a10);
     border-radius: 34px;
-    padding: 40px 22px 22px;
+    padding: 40px 18px 18px;
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 16px;
     overflow: hidden;
   }
   .phone__topbar {
     display: flex; align-items: center; justify-content: space-between;
   }
-  .phone__greet { font-size: 13px; font-weight: 600; color: var(--text-muted); }
-  .phone__avatar {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--orange), var(--pink));
-    display: grid; place-items: center;
-    font-size: 13px; font-weight: 800; color: #fff;
+  .phone__greet { font-size: 14px; font-weight: 700; color: var(--text); }
+  .phone__pill {
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--lime);
+    background: rgba(212, 255, 58, 0.12);
+    border: 1px solid rgba(212, 255, 58, 0.3);
+    border-radius: 999px;
+    padding: 3px 8px;
   }
+
+  /* Week grid — reinforces the "free week" value concept */
+  .phone__week {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+  }
+  .phone__day {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 5px;
+    border-radius: 9px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.02);
+    min-height: 56px;
+  }
+  .phone__day-d {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .phone__day-t {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .phone__day-m {
+    font-size: 8.5px;
+    color: var(--text-dim);
+    line-height: 1.1;
+  }
+  .phone__day--active {
+    background: rgba(212, 255, 58, 0.08);
+    border-color: rgba(212, 255, 58, 0.3);
+  }
+  .phone__day--active .phone__day-t { color: var(--lime); }
+  .phone__day--rest .phone__day-t { color: var(--text-muted); }
+  .phone__day--locked {
+    opacity: 0.5;
+    border-style: dashed;
+  }
+  .phone__day--locked .phone__day-t { color: var(--text-dim); font-size: 12px; }
 
   .phone__ring {
     position: relative;
-    width: 160px; height: 160px;
-    margin: 4px auto 0;
+    width: 130px; height: 130px;
+    margin: 0 auto;
   }
   .phone__ring-svg { width: 100%; height: 100%; }
   .phone__ring-center {
@@ -376,35 +686,35 @@ import { stats } from "../data/site";
     display: grid; place-content: center; text-align: center; gap: 2px;
   }
   .phone__ring-val {
-    font-size: 32px; font-weight: 800; letter-spacing: -0.02em;
+    font-size: 28px; font-weight: 800; letter-spacing: -0.02em;
     background: linear-gradient(105deg, var(--lime), var(--blue));
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .phone__ring-lbl {
-    font-size: 11px; color: var(--text-dim);
+    font-size: 9.5px; color: var(--text-dim);
     text-transform: uppercase; letter-spacing: 0.08em;
   }
 
   .phone__now-label {
-    font-size: 11px; color: var(--text-dim);
-    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;
+    font-size: 10px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;
   }
   .phone__now-card {
     background: linear-gradient(135deg, rgba(255, 46, 136, 0.18), rgba(255, 90, 44, 0.1));
     border: 1px solid rgba(255, 46, 136, 0.3);
     border-radius: 14px;
-    padding: 14px 16px;
+    padding: 12px 14px;
   }
   .phone__now-tag {
     font-family: var(--mono); font-size: 10px; font-weight: 700;
     color: var(--pink); text-transform: uppercase; letter-spacing: 0.06em;
   }
-  .phone__now-title { font-size: 19px; font-weight: 800; margin-top: 4px; }
-  .phone__now-coach { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .phone__now-title { font-size: 18px; font-weight: 800; margin-top: 4px; }
+  .phone__now-coach { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
   .phone__bars {
-    display: flex; align-items: flex-end; gap: 7px;
-    height: 70px; margin-top: auto;
+    display: flex; align-items: flex-end; gap: 6px;
+    height: 48px; margin-top: auto;
   }
   .phone__bar {
     flex: 1; height: var(--h);
@@ -427,7 +737,6 @@ import { stats } from "../data/site";
   .hero__badge {
     position: absolute;
     z-index: 3;
-    /* genuinely frosted / premium */
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(20px) saturate(160%);
     -webkit-backdrop-filter: blur(20px) saturate(160%);
@@ -447,7 +756,6 @@ import { stats } from "../data/site";
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
   }
-  /* tiny glowing status dot */
   .hero__badge-dot {
     width: 8px; height: 8px;
     border-radius: 50%;
@@ -514,10 +822,8 @@ import { stats } from "../data/site";
     gap: 24px;
     margin-top: 80px;
     padding-top: 40px;
-    /* flat border replaced by refined gradient line (see ::before) */
     border-top: none;
   }
-  /* Refined gradient divider — lime -> blue -> lime, feathered at the ends */
   .hero__stats::before {
     content: "";
     position: absolute;
@@ -574,14 +880,105 @@ import { stats } from "../data/site";
     .hero__badge-num { font-size: 22px; }
     .hero__badge--streak { right: 8px; top: 24px; }
     .hero__badge--kcal { left: 8px; bottom: 40px; }
+    .freebuild { padding: 15px; }
+    .freebuild__head { margin-bottom: 12px; }
+    .goalchip { padding: 8px 13px; font-size: 13px; }
+    .freebuild__w-meta { display: none; }
   }
 
-  /* Honor reduced-motion: stop the ambient loops + ping (global rule
-     already nullifies transitions/animations; this is a belt-and-braces
-     guard for the decorative pieces). */
+  /* Honor reduced-motion: stop ambient loops + ping + reveal animation */
   @media (prefers-reduced-motion: reduce) {
     .phone,
     .hero__badge,
     .hero__badge-dot::after { animation: none; }
+    .freebuild__reveal { animation: none; }
   }
 </style>
+
+<script>
+  // ============================================================
+  // Free value-first micro-interaction (reciprocity principle)
+  // Pick a goal -> instantly see a 3-workout starter plan.
+  // Pure vanilla JS. No gate, no email, no card. Honest free.
+  // ============================================================
+  (function () {
+    type Plan = { title: string; meta: string; sessions: { title: string; meta: string }[] };
+
+    // A few hardcoded sample plans keyed by goal. Real, usable value.
+    const PLANS: Record<string, Plan> = {
+      lose: {
+        title: "Burn & sculpt week",
+        meta: "3 sessions · ~640 kcal",
+        sessions: [
+          { title: "Afterburn", meta: "HIIT · 28 min" },
+          { title: "Engine Room", meta: "Cardio · 45 min" },
+          { title: "Reset", meta: "Mobility · 18 min" },
+        ],
+      },
+      muscle: {
+        title: "Hypertrophy week",
+        meta: "3 sessions · push / pull / legs",
+        sessions: [
+          { title: "Iron Stack", meta: "Strength · 42 min" },
+          { title: "Afterburn", meta: "HIIT finisher · 28 min" },
+          { title: "Reset", meta: "Mobility · 18 min" },
+        ],
+      },
+      strong: {
+        title: "Power builder week",
+        meta: "3 sessions · compound focus",
+        sessions: [
+          { title: "Iron Stack", meta: "Strength · 42 min" },
+          { title: "Shadow Round", meta: "Boxing · 30 min" },
+          { title: "Engine Room", meta: "Cardio base · 45 min" },
+        ],
+      },
+      move: {
+        title: "Mobility & flow week",
+        meta: "3 sessions · low impact",
+        sessions: [
+          { title: "Deep Flow", meta: "Yoga · 35 min" },
+          { title: "Reset", meta: "Mobility · 18 min" },
+          { title: "Engine Room", meta: "Cardio · 45 min" },
+        ],
+      },
+    };
+
+    const chips = document.querySelectorAll<HTMLButtonElement>(".goalchip");
+    const reveal = document.getElementById("freebuild-reveal");
+    const titleEl = document.getElementById("freebuild-title");
+    const metaEl = document.getElementById("freebuild-meta");
+    const listEl = document.getElementById("freebuild-list");
+
+    if (!chips.length || !reveal || !titleEl || !metaEl || !listEl) return;
+
+    function render(plan: Plan) {
+      titleEl!.textContent = plan.title;
+      metaEl!.textContent = plan.meta;
+      listEl!.innerHTML = plan.sessions
+        .map(
+          (s, i) => `
+          <li>
+            <span class="freebuild__num" aria-hidden="true">${i + 1}</span>
+            <span class="freebuild__w-title">${s.title}</span>
+            <span class="freebuild__w-meta">${s.meta}</span>
+          </li>`
+        )
+        .join("");
+      reveal!.hidden = false;
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const goal = chip.dataset.goal;
+        if (!goal || !(goal in PLANS)) return;
+
+        // toggle aria-pressed across the group (single-select)
+        chips.forEach((c) => (c.ariaPressed = "false"));
+        chip.ariaPressed = "true";
+
+        render(PLANS[goal]);
+      });
+    });
+  })();
+</script>

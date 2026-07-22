@@ -31,6 +31,9 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
       <button class="filter" data-filter="Boxing">Boxing</button>
       <button class="filter" data-filter="Yoga">Yoga</button>
       <button class="filter" data-filter="Mobility">Mobility</button>
+      <span class="filter__count" data-count aria-live="polite">
+        Showing <strong>6</strong> of 6
+      </span>
     </div>
 
     <div class="cards" data-grid>
@@ -46,7 +49,13 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
               loading="lazy"
               decoding="async"
             />
-            {/* Two stacked overlays: base bottom blend + accent tint at top. */}
+            {/* Editorial duotone stack (bottom → top):
+                1. __duotone — dark base layer + accent blend-mode tint (cinematic highlights → accent, shadows → near-black)
+                2. __vignette — radial darkening at the edges for depth
+                3. __overlay — strong bottom-up gradient to guarantee text legibility
+                4. __tint — subtle accent wash from the top, lifts on hover */}
+            <div class="workout__duotone" aria-hidden="true"></div>
+            <div class="workout__vignette" aria-hidden="true"></div>
             <div class="workout__overlay" aria-hidden="true"></div>
             <div class="workout__tint" aria-hidden="true"></div>
 
@@ -113,6 +122,7 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
 <style>
   .filters {
     display: flex; flex-wrap: wrap; gap: 8px;
+    align-items: center;
     margin-bottom: 32px;
   }
   .filter {
@@ -128,7 +138,19 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
   .filter.is-active {
     background: var(--lime); color: #08080b;
     border-color: var(--lime);
-    box-shadow: 0 0 0 1px var(--lime), 0 0 24px rgba(212, 255, 58, 0.35);
+    box-shadow: 0 0 0 1px var(--lime), 0 0 28px rgba(212, 255, 58, 0.45);
+  }
+  .filter__count {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .filter__count strong {
+    color: var(--lime);
+    font-weight: 700;
   }
 
   .cards {
@@ -155,10 +177,12 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
   /* ---------- Media / photo thumbnail ---------- */
   .workout__hero {
     position: relative;
-    /* Taller, more editorial media area (matches the 800x600 source). */
-    aspect-ratio: 4 / 3;
+    /* Editorial 3/2 crop — more cinematic than the old 4/3. */
+    aspect-ratio: 3 / 2;
     overflow: hidden;
     background: var(--bg-elev-2);
+    /* Slight base darkening so the duotone blend has something to bite into. */
+    isolation: isolate;
   }
   .workout__img {
     position: absolute; inset: 0;
@@ -166,26 +190,86 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
     object-fit: cover;
     /* Keep the athletic subject reading well at the top of the frame. */
     object-position: center top;
-    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Brighten slightly so the accent tint reads as glow, not mud. */
+    filter: contrast(1.08) saturate(1.05) brightness(1.02);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
     will-change: transform;
   }
-  .workout:hover .workout__img { transform: scale(1.08); }
+  .workout:hover .workout__img {
+    transform: scale(1.08);
+    /* On hover, push contrast/sat back toward true — the tint lifts, real photo shows. */
+    filter: contrast(1.04) saturate(1.1) brightness(1.05);
+  }
 
-  /* Layer 1 — base blend: strong anchor into the dark card body. */
+  /* ---------- Editorial duotone stack ---------- */
+  /* The photo + this layer together = duotone: highlights pushed toward the accent,
+     shadows held near black. Sits ABOVE the image but BELOW legibility gradient. */
+  .workout__duotone {
+    position: absolute; inset: 0;
+    /* Solid accent behind the blend + a dark wash, blended onto the photo. */
+    background:
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--accent) 30%, transparent) 0%,
+        color-mix(in srgb, var(--accent) 12%, transparent) 55%,
+        rgba(8, 8, 11, 0.55) 100%);
+    mix-blend-mode: color-dodge;
+    opacity: 0.55;
+    transition: opacity 0.5s ease, mix-blend-mode 0s;
+    pointer-events: none;
+    z-index: 1;
+  }
+  /* A second, subtler accent multiply layer to deepen the tint in midtones
+     without crushing contrast — this is the "cinematic wash" half of the duotone. */
+  .workout__hero::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: var(--accent);
+    mix-blend-mode: soft-light;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.5s ease;
+  }
+
+  /* Vignette — darker edges for depth and to focus the subject. */
+  .workout__vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(120% 100% at 50% 35%,
+      transparent 40%,
+      rgba(8, 8, 11, 0.35) 75%,
+      rgba(8, 8, 11, 0.7) 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Legibility gradient — bottom-up, strong enough to keep copy readable
+     even with the duotone underneath. This is the non-negotiable layer. */
   .workout__overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(180deg, transparent 35%, rgba(8, 8, 11, 0.7) 70%, rgba(8, 8, 11, 0.95));
+    background: linear-gradient(180deg,
+      transparent 30%,
+      rgba(8, 8, 11, 0.75) 70%,
+      rgba(8, 8, 11, 0.95));
     pointer-events: none;
+    z-index: 2;
   }
-  /* Layer 2 — accent tint washing from the top; intensifies on hover. */
+  /* Top accent wash — adds brand color into the sky/highlight region.
+     Lifts on hover so the true photo shows through. */
   .workout__tint {
     position: absolute; inset: 0;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 30%, transparent), transparent 45%);
-    opacity: 0.85;
+    background: linear-gradient(180deg,
+      color-mix(in srgb, var(--accent) 30%, transparent),
+      transparent 45%);
+    opacity: 0.7;
     transition: opacity 0.4s ease;
     pointer-events: none;
+    z-index: 2;
   }
-  .workout:hover .workout__tint { opacity: 1; }
+
+  /* Hover: the whole duotone lifts — photo reveals, tint recedes. */
+  .workout:hover .workout__duotone { opacity: 0.25; }
+  .workout:hover .workout__hero::after { opacity: 0.15; }
+  .workout:hover .workout__tint { opacity: 0.3; }
 
   /* Meta sitting on the photo */
   .workout__chip {
@@ -298,11 +382,20 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
 
   /* ---------- Motion-safe: kill transforms on hover, keep color/shadow. ---------- */
   @media (prefers-reduced-motion: reduce) {
+    .workout,
+    .workout__img,
+    .workout__title,
+    .workout__play,
+    .workout__duotone,
+    .workout__tint,
+    .workout__hero::after { transition: none !important; }
     .workout:hover,
     .workout:hover .workout__img,
     .workout:hover .workout__title { transform: none; }
     .workout:hover .workout__play { transform: translate(-50%, -50%); }
-    .workout:hover .workout__tint { opacity: 0.85; }
+    /* Still reveal the photo a touch on hover even without motion. */
+    .workout:hover .workout__duotone { opacity: 0.35; }
+    .workout:hover .workout__tint { opacity: 0.4; }
   }
 </style>
 
@@ -310,6 +403,14 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
   // Category filter — vanilla, no framework.
   const filters = document.querySelectorAll<HTMLButtonElement>(".filter");
   const cards = document.querySelectorAll<HTMLElement>(".workout");
+  const countEl = document.querySelector<HTMLElement>("[data-count] strong");
+  const total = cards.length;
+
+  const updateCount = () => {
+    if (!countEl) return;
+    const visible = Array.from(cards).filter((c) => !c.classList.contains("is-hidden")).length;
+    countEl.textContent = String(visible);
+  };
 
   filters.forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -320,6 +421,7 @@ const intensityMap = { Low: 1, Medium: 2, High: 3, Max: 4 };
         const show = cat === "all" || card.dataset.category === cat;
         card.classList.toggle("is-hidden", !show);
       });
+      updateCount();
     });
   });
 </script>

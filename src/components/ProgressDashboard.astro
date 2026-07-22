@@ -15,6 +15,12 @@ const maxMinsIdx = weeklyData.findIndex((d) => d.mins === maxMins);
 const overallPct = Math.round(
   (goals.reduce((acc, g) => acc + g.value / g.target, 0) / goals.length) * 100
 );
+// Remaining share — the "small, closeable gap" we emphasize (goal-gradient).
+const overallRemaining = Math.max(0, 100 - overallPct);
+
+// How far into the week we already are (honest count of active days logged).
+const daysTrained = weeklyData.filter((d) => d.kcal > 0).length;
+const weekLength = weeklyData.length;
 
 // Map accent name -> token for inline CSS var injection.
 const accentVar: Record<string, string> = {
@@ -109,11 +115,21 @@ const offsetFor = (r: number, pct: number) => circ(r) - (pct / 100) * circ(r);
       <div class="dash__panel dash__side">
         <span class="dash__label">Weekly goals</span>
 
-        <!-- HERO RING — overall completion -->
+        <!-- MOMENTUM STRIP — goal-gradient: you've already started, don't lose it -->
+        <div class="momentum" role="status">
+          <div class="momentum__pulse" aria-hidden="true"></div>
+          <div class="momentum__txt">
+            <strong>You've already trained {daysTrained} days this week.</strong>
+            <span>Don't break the chain.</span>
+          </div>
+          <span class="momentum__tag" aria-hidden="true">Day {daysTrained} of {weekLength}</span>
+        </div>
+
+        <!-- HERO RING — overall completion (framed as momentum, not distance) -->
         <div
           class="hero"
           role="img"
-          aria-label={`Overall weekly goal completion: ${overallPct} percent.`}
+          aria-label={`You're already ${overallPct} percent of the way to your weekly goal. Just ${overallRemaining} percent to go.`}
         >
           <div class="hero__glow" aria-hidden="true"></div>
           <svg viewBox="0 0 120 120" class="hero__svg" aria-hidden="true">
@@ -128,23 +144,32 @@ const offsetFor = (r: number, pct: number) => circ(r) - (pct / 100) * circ(r);
               cx="60" cy="60" r={HERO.r}
               class="hero__progress"
               pathLength={circ(HERO.r)}
+              data-from-pct="60"
               style={`stroke-dasharray:${circ(HERO.r)}; stroke-dashoffset:${offsetFor(HERO.r, overallPct)}`}
               data-target-offset={offsetFor(HERO.r, overallPct)}
             />
           </svg>
           <div class="hero__center">
-            <span class="hero__pct" data-pct={overallPct}>0%</span>
-            <span class="hero__cap">weekly goal</span>
+            <span class="hero__pct" data-pct={overallPct} data-from-pct="60">60%</span>
+            <span class="hero__cap">there</span>
+            <span class="hero__sub">Just {overallRemaining}% to go — finish strong.</span>
           </div>
         </div>
 
-        <!-- GOAL LIST — vertical stack, zero overlap -->
+        <!-- GOAL LIST — vertical stack, zero overlap. Remaining framed as closeable. -->
         <ul class="goals">
           {goals.map((g) => {
             const pct = Math.min(100, Math.round((g.value / g.target) * 100));
             const off = offsetFor(MINI.r, pct);
+            const remaining = Math.max(0, g.target - g.value);
+            const done = pct >= 100 || remaining === 0;
+            const close = !done && pct >= 90;
+            // Compact, honest "remaining" label — small numbers feel closeable.
+            const remainLabel = remaining >= 1000
+              ? `${(remaining / 1000).toFixed(remaining % 1000 === 0 ? 0 : 1)}k`
+              : `${remaining}`;
             return (
-              <li class="goal" style={`--accent:${accentVar[g.accent]}`}>
+              <li class:list={["goal", { "is-done": done }]} style={`--accent:${accentVar[g.accent]}`}>
                 <div class="goal__ring" aria-hidden="true">
                   <svg viewBox="0 0 44 44" class="goal__svg">
                     <circle cx="22" cy="22" r={MINI.r} class="goal__track" />
@@ -165,11 +190,14 @@ const offsetFor = (r: number, pct: number) => circ(r) - (pct / 100) * circ(r);
                       {g.value.toLocaleString()}<span class="goal__val-sep">/{g.target.toLocaleString()}{g.unit ? ` ${g.unit}` : ""}</span>
                     </span>
                   </div>
-                  <div class="goal__bar" role="progressbar" aria-valuenow={pct} aria-valuemin="0" aria-valuemax="100" aria-label={`${g.label}: ${g.value} of ${g.target}${g.unit ? " " + g.unit : ""}`}>
+                  <div class="goal__bar" role="progressbar" aria-valuenow={pct} aria-valuemin="0" aria-valuemax="100" aria-label={`${g.label}: ${g.value} of ${g.target}${g.unit ? " " + g.unit : ""}${done ? ", goal complete" : `, ${remainLabel}${g.unit ? " " + g.unit : ""} to go`}.`}>
                     <span class="goal__fill" style={`--w:${pct}%`}></span>
                   </div>
                 </div>
-                <span class="sr-only">{g.label}: {pct} percent complete.</span>
+                <span class:list={["goal__tag", { "is-done": done, "is-close": close }]}>
+                  {done ? "✓ done" : close ? "almost there" : `${remainLabel}${g.unit ? " " + g.unit : ""} to go`}
+                </span>
+                <span class="sr-only">{g.label}: {pct} percent complete.{done ? " Goal complete." : ` ${remainLabel}${g.unit ? " " + g.unit : ""} to go.`}</span>
               </li>
             );
           })}
@@ -459,6 +487,16 @@ const offsetFor = (r: number, pct: number) => circ(r) - (pct / 100) * circ(r);
     letter-spacing: 0.14em;
     color: var(--text-dim);
   }
+  /* Momentum sub-line — emphasizes the small, closeable remaining gap. */
+  .hero__sub {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+    max-width: 16ch;
+    margin-top: 2px;
+  }
 
   @keyframes heroPulse {
     0%, 100% { opacity: 0.55; transform: scale(0.96); }
@@ -573,6 +611,93 @@ const offsetFor = (r: number, pct: number) => circ(r) - (pct / 100) * circ(r);
   }
   .dash.is-visible .goal__fill { width: var(--w); }
 
+  /* Goal "to go" tag — small closeable number, sits at the row's trailing edge. */
+  .goal__tag {
+    flex: 0 0 auto;
+    align-self: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    padding: 4px 9px;
+    border-radius: 999px;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+  }
+  .goal__tag.is-close {
+    color: var(--warn);
+    background: rgba(251, 191, 36, 0.12);
+    border-color: rgba(251, 191, 36, 0.34);
+  }
+  .goal__tag.is-done {
+    color: var(--good);
+    background: rgba(74, 222, 128, 0.14);
+    border-color: rgba(74, 222, 128, 0.36);
+  }
+  .goal.is-done {
+    border-color: rgba(74, 222, 128, 0.28);
+  }
+  .goal.is-done .goal__ring-pct { color: var(--good); }
+
+  /* ---- Momentum strip (goal-gradient framing) ---- */
+  .momentum {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 15px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(212, 255, 58, 0.1), rgba(46, 230, 255, 0.05));
+    border: 1px solid rgba(212, 255, 58, 0.22);
+  }
+  .momentum__pulse {
+    flex: 0 0 auto;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--lime);
+    box-shadow: 0 0 12px rgba(212, 255, 58, 0.8);
+    animation: momentumBlink 1.8s ease-in-out infinite;
+  }
+  .momentum__txt {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    line-height: 1.35;
+  }
+  .momentum__txt strong {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .momentum__txt span {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+  }
+  .momentum__tag {
+    flex: 0 0 auto;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--lime);
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(212, 255, 58, 0.1);
+    border: 1px solid rgba(212, 255, 58, 0.3);
+    white-space: nowrap;
+  }
+  @keyframes momentumBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.8); }
+  }
+
   /* ---- Streak (frosted glass) ---- */
   .streak {
     display: flex; align-items: center; gap: 14px;
@@ -619,15 +744,21 @@ const offsetFor = (r: number, pct: number) => circ(r) - (pct / 100) * circ(r);
     .dash__panel { padding: 22px; }
     .dash__head { flex-direction: column; gap: 16px; }
     .dash__foot { gap: 24px; flex-wrap: wrap; }
-    .goal { padding: 12px; gap: 12px; }
+    .goal { padding: 12px; gap: 10px; }
     .goal__ring { width: 46px; height: 46px; }
+    /* Keep the row compact: tag stays inline but tightens up. */
+    .goal__tag { font-size: 10px; padding: 3px 7px; }
+    .momentum { flex-wrap: wrap; }
+    .momentum__tag { font-size: 10px; }
   }
 
   /* ============ Reduced motion ============ */
   @media (prefers-reduced-motion: reduce) {
     .chart__bar { transform: none !important; }
     .hero__glow { animation: none !important; }
+    .momentum__pulse { animation: none !important; }
     .hero__progress,
+    .hero__progress.is-primed,
     .goal__progress { transition: none !important; }
     .dash.is-visible .goal__fill { width: var(--w); }
   }
@@ -660,8 +791,15 @@ const offsetFor = (r: number, pct: number) => circ(r) - (pct / 100) * circ(r);
   const pctEls = Array.from(document.querySelectorAll<HTMLElement>("[data-pct]"));
   const countUp = (el: HTMLElement) => {
     const target = parseInt(el.dataset.pct ?? "0", 10);
+    // Goal-gradient: the hero number starts at a "head-start" value (e.g. 60%)
+    // to imply pre-existing momentum, rather than from a cold zero.
+    const start = Math.min(
+      target,
+      parseInt(el.dataset.fromPct ?? "0", 10)
+    );
     if (reduceMotion) { el.textContent = `${target}%`; return; }
-    let cur = 0;
+    let cur = start;
+    el.textContent = `${cur}%`;
     const step = () => {
       cur += Math.max(1, Math.round((target - cur) * 0.1));
       if (cur >= target) cur = target;
@@ -688,11 +826,20 @@ const offsetFor = (r: number, pct: number) => circ(r) - (pct / 100) * circ(r);
 
   // ---------- Stroke-dashoffset reveal for all progress arcs ----------
   const arcs = Array.from(document.querySelectorAll<SVGCircleElement>("[data-target-offset]"));
+  // Each arc carries pathLength == circ(r) == 2*pi*r, and offsetFor(r, pct) maps a
+  // percentage to a dashoffset. To prime a "head-start" reveal we invert that:
+  // given a from-pct, compute the offset that represents that partial fill.
+  const offsetFromPct = (arc: SVGCircleElement, pct: number) => {
+    const full = parseFloat(arc.getAttribute("pathLength") ?? "0") || arc.getTotalLength();
+    return String(full - (pct / 100) * full);
+  };
   if (!reduceMotion) {
-    // Park arcs at "empty" until revealed so the draw-in is visible.
     arcs.forEach((arc) => {
-      const full = parseFloat(arc.getAttribute("pathLength") ?? "0") || arc.getTotalLength();
-      arc.style.strokeDashoffset = String(full);
+      const fromPct = parseInt(arc.dataset.fromPct ?? "0", 10);
+      // Goal-gradient: the hero arc starts partly filled (its "head-start"),
+      // the mini goal arcs start empty so their draw-in still reads as progress.
+      arc.style.strokeDashoffset =
+        fromPct > 0 ? offsetFromPct(arc, fromPct) : String(arc.getTotalLength());
     });
   }
 

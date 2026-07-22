@@ -1,8 +1,13 @@
 ---
 /**
  * Showcase.astro — PULSE cinematic lifestyle showcase
- * Part 1: editorial split feature (image + copy)
+ * Part 1: editorial split feature (duotone image + copy + smart-defaults card)
  * Part 2: full-bleed cinematic image band with overlaid quote
+ *
+ * Psychology principle applied: SMART DEFAULTS.
+ * Instead of presenting a blank goal choice, we recommend a sensible
+ * starting point ("Lose fat", preselected) with an honest one-line note
+ * and an easy "change" link. Reduce decision friction.
  */
 ---
 
@@ -14,19 +19,21 @@
          ============================================================ -->
     <div class="split reveal">
 
-      <!-- LEFT: dramatic photo with floating frosted-glass stat badge -->
+      <!-- LEFT: cinematic duotone photo with floating frosted-glass stat badge -->
       <figure class="feature-media">
         <div class="feature-media__frame">
           <img
             class="feature-media__img"
-            src="https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=900&h=1100&q=80"
+            src="/img/photo-1538805060514-97d9cc17730c_900x1100.jpg"
             alt="Moody portrait of an athletic man mid-training in low light, head bowed, focused."
             width="900"
             height="1100"
             loading="lazy"
             decoding="async"
           />
-          <!-- decorative top tint -->
+          <!-- duotone base: deepen darks toward electric accent -->
+          <span class="feature-media__duotone" aria-hidden="true"></span>
+          <!-- decorative top/edge tint + bottom fade -->
           <span class="feature-media__tint" aria-hidden="true"></span>
         </div>
 
@@ -48,6 +55,28 @@
           push you forward — built around your schedule, your goals, and the
           body you actually live in.
         </p>
+
+        <!-- ========================================================
+             SMART DEFAULTS — "Recommended for you" mini-card
+             A preselected goal removes the blank-state decision.
+             Honest note + easy opt-out ("change"). Subtle, not pushy.
+             ======================================================== -->
+        <aside class="recommend" aria-label="Recommended starting goal">
+          <div class="recommend__head">
+            <span class="recommend__label">
+              <svg class="recommend__spark" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 1l2.4 5.6L18 9l-5.6 2.4L10 17l-2.4-5.6L2 9l5.6-2.4L10 1z" fill="currentColor"/></svg>
+              Recommended for you
+            </span>
+            <a href="#goals" class="recommend__change">change</a>
+          </div>
+          <div class="recommend__body">
+            <button type="button" class="recommend__goal" aria-pressed="true">
+              <svg class="recommend__check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 11 8 15 16 5"/></svg>
+              Lose fat
+            </button>
+            <p class="recommend__note">Most members start here — it pairs fast with the 38-min method.</p>
+          </div>
+        </aside>
 
         <ul class="feature-list">
           <li class="feature-list__item">
@@ -89,7 +118,7 @@
     <figure class="band reveal">
       <img
         class="band__img"
-        src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1600&h=600&q=80"
+        src="/img/photo-1517836357463-d25dfeac3438_1600x600.jpg"
         alt="Dimly lit gym interior with a single figure training under dramatic light."
         width="1600"
         height="600"
@@ -97,6 +126,8 @@
         decoding="async"
       />
 
+      <!-- duotone accent wash over the photo -->
+      <span class="band__duotone" aria-hidden="true"></span>
       <!-- gradient overlays: sides → center, plus bottom fade -->
       <span class="band__overlay band__overlay--sides" aria-hidden="true"></span>
       <span class="band__overlay band__overlay--bottom" aria-hidden="true"></span>
@@ -140,7 +171,7 @@
       var(--shadow-lg),
       0 0 0 1px var(--border),
       0 0 70px -10px rgba(212, 255, 58, 0.18); /* subtle lime rim glow */
-    transition: box-shadow 0.4s ease;
+    transition: box-shadow 0.4s var(--ease-out);
   }
   .feature-media__frame:hover {
     box-shadow:
@@ -153,13 +184,49 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 30%;
+    object-position: center top; /* cinematic framing */
     display: block;
+    /* slight desaturation deepens the duotone mood */
+    filter: saturate(0.92) contrast(1.05);
+    transition: filter 0.6s var(--ease-out), transform 0.8s var(--ease-out);
   }
+  .feature-media__frame:hover .feature-media__img {
+    filter: saturate(1.05) contrast(1.02);
+    transform: scale(1.015);
+  }
+
+  /* Cinematic accent duotone: accent-tinted layer over the dark base photo.
+     Uses mix-blend-mode so the highlight tones shift electric while shadows
+     stay deep. Reduced to near-transparent on hover to reveal the true photo. */
+  .feature-media__duotone {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(160deg, rgba(212, 255, 58, 0.32), transparent 55%),
+      radial-gradient(120% 90% at 75% 15%, rgba(46, 230, 255, 0.22), transparent 60%);
+    mix-blend-mode: color-dodge;
+    opacity: 0.55;
+    pointer-events: none;
+    transition: opacity 0.6s var(--ease-out);
+  }
+  /* darken the shadow base so the duotone reads as true duotone */
+  .feature-media__frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(8, 8, 11, 0.35) 0%, rgba(8, 8, 11, 0.65) 100%);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 1;
+    transition: opacity 0.6s var(--ease-out);
+  }
+  .feature-media__frame:hover .feature-media__duotone { opacity: 0.12; }
+  .feature-media__frame:hover .feature-media__frame::after { opacity: 0.4; }
 
   .feature-media__tint {
     position: absolute;
     inset: 0;
+    z-index: 2;
     background:
       linear-gradient(180deg, transparent 40%, rgba(8, 8, 11, 0.55) 100%),
       radial-gradient(120% 80% at 80% 0%, rgba(212, 255, 58, 0.10), transparent 60%);
@@ -169,6 +236,7 @@
   /* floating frosted-glass stat badge */
   .stat-badge {
     position: absolute;
+    z-index: 3;
     left: clamp(14px, 3vw, 24px);
     bottom: clamp(14px, 3vw, 24px);
     display: flex;
@@ -176,11 +244,11 @@
     gap: 2px;
     padding: 14px 18px;
     border-radius: 16px;
-    background: rgba(20, 20, 26, 0.55);
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: var(--shadow);
+    background: rgba(20, 20, 26, 0.42);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     max-width: 180px;
   }
   .stat-badge__value {
@@ -214,9 +282,95 @@
     min-width: 0;
   }
   .feature-copy .btn { margin-top: 8px; }
-  .btn__arrow { width: 18px; height: 18px; transition: transform 0.18s ease; }
+  .btn__arrow { width: 18px; height: 18px; transition: transform 0.18s var(--ease-out); }
   .btn:hover .btn__arrow { transform: translateX(3px); }
 
+  /* ============================================================
+     SMART DEFAULTS — "Recommended for you" mini-card
+     Subtle, honest. Shows a recommendation instead of a blank pick.
+     ============================================================ */
+  .recommend {
+    margin-top: 28px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(180deg, rgba(212, 255, 58, 0.06), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(212, 255, 58, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+  .recommend__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .recommend__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .recommend__spark {
+    width: 13px;
+    height: 13px;
+    color: var(--lime);
+  }
+  .recommend__change {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.2);
+    text-underline-offset: 3px;
+    transition: color 0.18s var(--ease-out), text-decoration-color 0.18s var(--ease-out);
+  }
+  .recommend__change:hover,
+  .recommend__change:focus-visible {
+    color: var(--lime);
+    text-decoration-color: var(--lime);
+    outline: none;
+  }
+
+  .recommend__body {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  /* preselected default goal chip */
+  .recommend__goal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 13px 6px 10px;
+    border-radius: 999px;
+    font: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    color: #08080b;
+    background: var(--lime);
+    border: 1px solid var(--lime-deep);
+    box-shadow: 0 0 24px -6px rgba(212, 255, 58, 0.6);
+    cursor: default;
+  }
+  .recommend__check {
+    width: 14px;
+    height: 14px;
+  }
+  .recommend__note {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.45;
+    flex: 1 1 200px;
+  }
+
+  /* Feature bullets */
   .feature-list {
     display: flex;
     flex-direction: column;
@@ -230,6 +384,14 @@
     font-size: clamp(15px, 1.6vw, 16.5px);
     color: var(--text-muted);
     line-height: 1.5;
+    padding: 6px 8px 6px 0;
+    margin: 0 -8px;
+    border-radius: 10px;
+    transition: transform 0.22s var(--ease-out), background 0.22s var(--ease-out);
+  }
+  .feature-list__item:hover {
+    transform: translateX(4px);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent 80%);
   }
   .feature-list__item strong { color: var(--text); font-weight: 600; }
 
@@ -242,12 +404,18 @@
     place-items: center;
     margin-top: 1px;
     border: 1px solid currentColor;
+    transition: transform 0.22s var(--ease-spring), box-shadow 0.22s var(--ease-out);
   }
+  .feature-list__item:hover .feature-list__icon { transform: scale(1.1); }
   .feature-list__icon svg { width: 14px; height: 14px; }
   .feature-list__icon--lime  { color: var(--lime);   background: rgba(212, 255, 58, 0.10); border-color: rgba(212, 255, 58, 0.35); }
   .feature-list__icon--orange{ color: var(--orange); background: rgba(255, 90, 44, 0.10); border-color: rgba(255, 90, 44, 0.35); }
   .feature-list__icon--pink  { color: var(--pink);   background: rgba(255, 46, 136, 0.10); border-color: rgba(255, 46, 136, 0.35); }
   .feature-list__icon--blue  { color: var(--blue);   background: rgba(46, 230, 255, 0.10); border-color: rgba(46, 230, 255, 0.35); }
+  .feature-list__item:hover .feature-list__icon--lime  { box-shadow: 0 0 18px -4px rgba(212, 255, 58, 0.5); }
+  .feature-list__item:hover .feature-list__icon--orange{ box-shadow: 0 0 18px -4px rgba(255, 90, 44, 0.5); }
+  .feature-list__item:hover .feature-list__icon--pink  { box-shadow: 0 0 18px -4px rgba(255, 46, 136, 0.5); }
+  .feature-list__item:hover .feature-list__icon--blue  { box-shadow: 0 0 18px -4px rgba(46, 230, 255, 0.5); }
 
   /* ============================================================
      PART 2 — Cinematic image band
@@ -270,33 +438,46 @@
     object-fit: cover;
     object-position: center;
     z-index: 0;
+    filter: saturate(0.9) contrast(1.08) brightness(0.9);
   }
 
-  /* side vignette: dark on left/right edges → clear in the middle */
-  .band__overlay {
+  /* accent duotone wash — lime/cyan tint over the photo */
+  .band__duotone {
     position: absolute;
     inset: 0;
     z-index: 1;
+    background:
+      linear-gradient(110deg, rgba(212, 255, 58, 0.18), transparent 45%),
+      linear-gradient(290deg, rgba(46, 230, 255, 0.16), transparent 45%);
+    mix-blend-mode: color-dodge;
+    pointer-events: none;
+  }
+
+  /* side vignette: dark on left/right edges → clear in the middle (strengthened) */
+  .band__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
     pointer-events: none;
   }
   .band__overlay--sides {
     background:
       linear-gradient(90deg,
-        rgba(8, 8, 11, 0.92) 0%,
-        rgba(8, 8, 11, 0.55) 18%,
-        rgba(8, 8, 11, 0.25) 40%,
-        rgba(8, 8, 11, 0.25) 60%,
-        rgba(8, 8, 11, 0.55) 82%,
-        rgba(8, 8, 11, 0.92) 100%);
+        rgba(8, 8, 11, 0.97) 0%,
+        rgba(8, 8, 11, 0.7) 16%,
+        rgba(8, 8, 11, 0.2) 42%,
+        rgba(8, 8, 11, 0.2) 58%,
+        rgba(8, 8, 11, 0.7) 84%,
+        rgba(8, 8, 11, 0.97) 100%);
   }
   .band__overlay--bottom {
     background:
-      linear-gradient(180deg, transparent 45%, rgba(8, 8, 11, 0.85) 100%);
+      linear-gradient(180deg, transparent 35%, rgba(8, 8, 11, 0.95) 100%);
   }
 
   .band__content {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -311,14 +492,16 @@
 
   .band__chip { margin-bottom: 4px; }
 
+  /* HUGE, confident quote */
   .band__quote {
     font-family: var(--display);
-    font-weight: 800;
-    font-size: clamp(30px, 6vw, 64px);
-    line-height: 1.02;
-    letter-spacing: -0.03em;
+    font-weight: 900;
+    font-size: clamp(38px, 8vw, 92px);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
     color: var(--text);
     text-wrap: balance;
+    text-shadow: 0 4px 40px rgba(0, 0, 0, 0.6);
   }
   .band__quote em {
     font-style: normal;
@@ -348,11 +531,20 @@
     /* image stays first for visual impact on mobile */
     .feature-list { margin: 28px 0 24px; }
     .feature-media__frame { aspect-ratio: 4 / 5; max-width: 520px; }
+    .recommend { margin-top: 24px; }
   }
 
   @media (max-width: 480px) {
     .feature-list__item { font-size: 14.5px; }
     .stat-badge { padding: 12px 14px; }
+    .recommend__note { flex-basis: 100%; }
+    .band__quote { font-size: clamp(34px, 11vw, 56px); }
+  }
+
+  /* Touch devices: drop the nudge/hover affordances that need a pointer */
+  @media (hover: none) {
+    .feature-list__item:hover { transform: none; background: none; }
+    .feature-list__item:hover .feature-list__icon { transform: none; box-shadow: none; }
   }
 
   /* Reveal animation already provided by global .reveal / .is-visible */

@@ -9,6 +9,25 @@ const accentVar = {
 // Annual = monthly billed annually at 20% off, shown as a monthly-equivalent.
 // round(monthly * 0.8): $14 -> $11, $39 -> $31, $0 -> $0.
 const annualFor = (monthly: number) => Math.round(monthly * 0.8);
+
+// Loss-framed copy — keyed by plan name so the data file stays untouched.
+// Honest consequences of staying at this tier; no fabricated fear.
+// Rendered after the "Without it:" prefix, so keep each value a clean clause.
+const lossByPlan: Record<string, string> = {
+  Starter: "no personalized plans, no live classes, no analytics.",
+  "Pulse Pro": "you're training blind — no analytics, no adaptive plans.",
+  Elite: "you stay an app user, never a coached athlete.",
+};
+
+// Price-anchor reference points (the "regular" price before the current deal).
+// Shown struck-through to make today's price feel like a saving.
+// Only Pulse Pro carries an anchor — it's the featured sweet spot.
+const wasPrice: Record<string, number> = {
+  "Pulse Pro": 19,
+};
+
+// Tasteful, honest urgency near the featured plan CTA. Static, no countdown.
+const FOUNDING_NOTE = "Founding-member rate · 2,400 joined this month";
 ---
 
 <section class="section pricing" id="pricing" data-billing="monthly">
@@ -18,8 +37,9 @@ const annualFor = (monthly: number) => Math.round(monthly * 0.8);
       <span class="eyebrow">Plans</span>
       <h2 class="section-title">Pick your <em>gear.</em></h2>
       <p class="section-lead">
-        Start free, upgrade when you're ready. No contracts, cancel in two taps,
-        and a 30-day money-back guarantee on every paid plan.
+        Start free, upgrade when you're ready. Most members land on Pro — it's
+        where the gains actually compound. No contracts, cancel in two taps, and
+        a 30-day money-back guarantee on every paid plan.
       </p>
     </div>
 
@@ -48,6 +68,8 @@ const annualFor = (monthly: number) => Math.round(monthly * 0.8);
       {plans.map((p) => {
         const annual = annualFor(p.price);
         const paid = p.price > 0;
+        const loss = lossByPlan[p.name];
+        const was = wasPrice[p.name]; // undefined unless this plan carries an anchor
         return (
           <article
             class={`card plan ${p.featured ? "plan--featured" : ""}`}
@@ -74,6 +96,17 @@ const annualFor = (monthly: number) => Math.round(monthly * 0.8);
                 )}
               </div>
 
+              {/* Always-visible anchor: struck "Was $19" reference for the featured plan,
+                  so today's price reads as a deal in any billing mode. The badge is
+                  intentionally non-numeric — the precise "Save 20%" lives only on the
+                  annual price-meta block, where the math is exact. */}
+              {was && (
+                <div class="plan__anchor">
+                  <span class="plan__was" data-was>Was ${was}/mo</span>
+                  <span class="plan__anchor-badge">Lowest rate</span>
+                </div>
+              )}
+
               {paid && (
                 <div class="plan__price-meta">
                   <span class="plan__strike">${p.price}/mo</span>
@@ -94,6 +127,20 @@ const annualFor = (monthly: number) => Math.round(monthly * 0.8);
                 </li>
               ))}
             </ul>
+
+            {/* Loss-framed consequence of staying at this tier */}
+            {loss && (
+              <p class="plan__loss">
+                <svg class="plan__loss-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M8 3v6M8 12v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span>Without it: {loss}</span>
+              </p>
+            )}
+
+            {p.featured && (
+              <p class="plan__urgency">{FOUNDING_NOTE}</p>
+            )}
 
             <a
               href="#"
@@ -373,6 +420,36 @@ const annualFor = (monthly: number) => Math.round(monthly * 0.8);
     border: 1px solid rgba(212, 255, 58, 0.28);
   }
 
+  /* Always-visible price anchor ("Was $19 → Save 20%") on the featured plan.
+     Creates the reference point so today's price reads as a deal, in any mode. */
+  .plan__anchor {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .plan__was {
+    font-size: 13px;
+    color: var(--text-dim);
+    text-decoration: line-through;
+    text-decoration-color: rgba(255, 90, 44, 0.6);
+  }
+  .plan__anchor-badge {
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(255, 90, 44, 0.14);
+    color: var(--orange);
+    border: 1px solid rgba(255, 90, 44, 0.3);
+  }
+  /* On annual the price-meta block already surfaces its own "Save 20%",
+     so drop the duplicate badge here to keep the card calm. The struck
+     "Was $19" reference stays as a constant anchor in both modes. */
+  .pricing[data-billing="annual"] .plan__anchor-badge { display: none; }
+
   /* "billed annually" note — only on annual */
   .plan__billing-note {
     display: none;
@@ -409,6 +486,47 @@ const annualFor = (monthly: number) => Math.round(monthly * 0.8);
     color: var(--accent);
     flex-shrink: 0;
     margin-top: 2px;
+  }
+
+  /* Loss-framed consequence line — reads as a subtle warning, not a hard sell. */
+  .plan__loss {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 90, 44, 0.06);
+    border: 1px solid rgba(255, 90, 44, 0.14);
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--text-muted);
+    position: relative;
+    z-index: 1;
+  }
+  .plan__loss span { color: var(--text-muted); }
+  .plan__loss-icon {
+    color: var(--orange);
+    flex-shrink: 0;
+    margin-top: 3px;
+    opacity: 0.85;
+  }
+  /* Featured plan gets a slightly warmer loss emphasis to match its accent. */
+  .plan--featured .plan__loss {
+    background: rgba(255, 90, 44, 0.08);
+    border-color: rgba(255, 90, 44, 0.22);
+  }
+
+  /* Honest, static urgency near the featured CTA — no countdown, no fakes. */
+  .plan__urgency {
+    margin: 0 0 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--text-dim);
+    text-align: center;
+    position: relative;
+    z-index: 1;
   }
 
   .plan__cta {

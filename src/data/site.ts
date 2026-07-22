@@ -5,8 +5,10 @@
 // ============================================================
 
 // Helper: stable Unsplash CDN url with sensible defaults.
-const img = (id: string, w = 800, h?: number) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}${h ? `&h=${h}` : ""}&q=80`;
+// Images are self-hosted under /public/img (pre-cropped to the exact w×h used).
+// Self-hosting avoids third-party cookies (Best Practices) and Unsplash hotlink throttling.
+const img = (id: string, w = 800, h = 600) =>
+  `/img/${id}_${w}x${h}.jpg`;
 
 export const site = {
   name: "PULSE",
@@ -49,7 +51,7 @@ export const workouts: Workout[] = [
     accent: "orange",
     blurb: "Progressive compound lifts to build raw, functional power.",
     moves: ["Back squat", "Deadlift", "Bench", "Weighted pull-up"],
-    image: img("photo-1607962837359-5e7e89f86776", 800, 600),
+    image: img("photo-1538805060514-97d9cc17730c", 800, 600),
   },
   {
     id: "afterburn",
@@ -62,7 +64,7 @@ export const workouts: Workout[] = [
     accent: "pink",
     blurb: "Tabata-style intervals that keep burning calories for hours.",
     moves: ["Burpees", "Box jumps", "Kettlebell swing", "Sprint"],
-    image: img("photo-1599058917212-d750089bc07e", 800, 600),
+    image: img("photo-1571019613454-1cb2f99b2d8b", 800, 600),
   },
   {
     id: "deep-flow",
@@ -75,7 +77,7 @@ export const workouts: Workout[] = [
     accent: "blue",
     blurb: "Slow vinyasa to unlock mobility and reset your nervous system.",
     moves: ["Sun A", "Pigeon", "Spinal twist", "Savasana"],
-    image: img("photo-1594381898411-846e7d193883", 800, 600),
+    image: img("photo-1518310383802-640c2de311b2", 800, 600),
   },
   {
     id: "shadow-round",
@@ -88,7 +90,7 @@ export const workouts: Workout[] = [
     accent: "lime",
     blurb: "Six three-minute rounds of shadow boxing + footwork drills.",
     moves: ["Jab-cross", "Slip roll", "Combos", "Conditioning"],
-    image: img("photo-1546483875-ad9014c88eba", 800, 600),
+    image: img("photo-1574680096145-d05b474e2155", 800, 600),
   },
   {
     id: "engine-room",
@@ -101,7 +103,7 @@ export const workouts: Workout[] = [
     accent: "blue",
     blurb: "Zone-2 endurance work that builds a tireless aerobic base.",
     moves: ["Row", "Bike", "Run", "Sled push"],
-    image: img("photo-1552674605-db6ffd4facb5", 800, 600),
+    image: img("photo-1551698618-1dfe5d97d256", 800, 600),
   },
   {
     id: "reset",
@@ -138,7 +140,7 @@ export const coaches: Coach[] = [
     accent: "orange",
     years: 12,
     cred: "NSCA-CSCS",
-    image: img("photo-1463453091185-61582044d556", 600, 700),
+    image: img("photo-1607962837359-5e7e89f86776", 600, 700),
   },
   {
     name: "Lena Cruz",
@@ -148,7 +150,7 @@ export const coaches: Coach[] = [
     accent: "pink",
     years: 9,
     cred: "NASM-CPT",
-    image: img("photo-1488426862026-3ee34a7d66df", 600, 700),
+    image: img("photo-1571019613454-1cb2f99b2d8b", 600, 700),
   },
   {
     name: "Priya Anand",
@@ -158,7 +160,7 @@ export const coaches: Coach[] = [
     accent: "blue",
     years: 11,
     cred: "RYT-500",
-    image: img("photo-1544005313-94ddf0286df2", 600, 700),
+    image: img("photo-1518310383802-640c2de311b2", 600, 700),
   },
   {
     name: "Diego Marín",
@@ -168,7 +170,7 @@ export const coaches: Coach[] = [
     accent: "lime",
     years: 14,
     cred: "Ex-pro · 47-3",
-    image: img("photo-1534528741775-53994a69daeb", 600, 700),
+    image: img("photo-1538805060514-97d9cc17730c", 600, 700),
   },
 ];
 

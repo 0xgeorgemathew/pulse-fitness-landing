@@ -1,0 +1,854 @@
+---
+/* ============================================================
+   Onboarding — "Build your plan" configurator
+   Psychology: IKEA effect + endowment effect.
+   The user builds something meaningful *before* signup, so each
+   choice increases ownership. The CTA says "Continue" (not "Sign
+   up") because they're resuming work already underway — leaving
+   now feels like abandoning their own creation.
+   ============================================================ */
+
+// Step 1 — Goal
+const goals = [
+  { id: "fat",      label: "Lose fat",      icon: "flame",   accent: "orange" },
+  { id: "muscle",   label: "Build muscle",  icon: "bolt",    accent: "lime" },
+  { id: "strong",   label: "Get strong",    icon: "dumbbell",accent: "pink" },
+  { id: "move",     label: "Move better",   icon: "wave",    accent: "blue" },
+] as const;
+
+// Step 2 — Level
+const levels = [
+  { id: "new",      label: "Just starting",  note: "New to training or returning" },
+  { id: "some",     label: "Some experience",note: "Train weekly, know the basics" },
+  { id: "athlete",  label: "Athlete",        note: "Train hard and chase PRs" },
+] as const;
+
+// Step 3 — Days per week
+const dayOptions = [3, 4, 5, 6] as const;
+
+// Fixed weekly day-order so the filled schedule is deterministic.
+const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
+
+const accentVar: Record<string, string> = {
+  lime:   "var(--lime)",
+  orange: "var(--orange)",
+  pink:   "var(--pink)",
+  blue:   "var(--blue)",
+};
+
+const goalIcons: Record<string, string> = {
+  flame:    `<path d="M12 3c0 4-3 4-3 7a3 3 0 0 0 6 0c0-1-1-2-1-3 2 1 4 3 4 6a6 6 0 1 1-12 0c0-5 6-6 6-10Z" fill="currentColor"/>`,
+  bolt:     `<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" fill="currentColor"/>`,
+  dumbbell: `<path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/>`,
+  wave:     `<path d="M2 12c2-3 4-3 6 0s4 3 6 0 4-3 6 0M2 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>`,
+};
+---
+
+<section class="section onboarding" id="build" aria-labelledby="build-title">
+  <div class="build__glow" aria-hidden="true"></div>
+  <div class="container">
+    <div class="section-head section-head--center reveal">
+      <span class="eyebrow">Make it yours</span>
+      <h2 class="section-title" id="build-title">Build your <em>plan.</em></h2>
+      <p class="section-lead">
+        Three quick choices. Watch your PULSE plan take shape in real time —
+        then keep what you built. No signup until the plan feels like yours.
+      </p>
+    </div>
+
+    <div class="build">
+      {/* ---------------- Choices column ---------------- */}
+      <div class="build__choices reveal">
+        {/* STEP 1 — GOAL */}
+        <fieldset class="step" data-step="goal">
+          <legend class="step__legend">
+            <span class="step__index" aria-hidden="true">01</span>
+            <span class="step__label">What's your main goal?</span>
+          </legend>
+          <div class="step__options step__options--cards" role="group" aria-label="Choose your main goal">
+            {goals.map((g) => (
+              <button
+                type="button"
+                class="opt opt--card"
+                data-choice="goal"
+                data-value={g.id}
+                data-label={g.label}
+                data-accent={g.accent}
+                style={`--accent:${accentVar[g.accent]}`}
+                aria-pressed="false"
+              >
+                <span class="opt__check" aria-hidden="true">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8.5 L6.5 12 L13 4.5" stroke="currentColor" stroke-width="2.5"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span class="opt__icon" aria-hidden="true">
+                  <svg width="24" height="24" viewBox="0 0 24 24" set:html={goalIcons[g.icon]} />
+                </span>
+                <span class="opt__text">{g.label}</span>
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        {/* STEP 2 — LEVEL */}
+        <fieldset class="step" data-step="level">
+          <legend class="step__legend">
+            <span class="step__index" aria-hidden="true">02</span>
+            <span class="step__label">Where are you now?</span>
+          </legend>
+          <div class="step__options step__options--rows" role="group" aria-label="Choose your experience level">
+            {levels.map((l) => (
+              <button
+                type="button"
+                class="opt opt--row"
+                data-choice="level"
+                data-value={l.id}
+                data-label={l.label}
+                aria-pressed="false"
+              >
+                <span class="opt__check opt__check--dot" aria-hidden="true"></span>
+                <span class="opt__row-main">
+                  <span class="opt__text">{l.label}</span>
+                  <span class="opt__note">{l.note}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </fieldset>
+
+        {/* STEP 3 — DAYS */}
+        <fieldset class="step" data-step="days">
+          <legend class="step__legend">
+            <span class="step__index" aria-hidden="true">03</span>
+            <span class="step__label">How many days a week?</span>
+          </legend>
+          <div class="step__options step__options--pills" role="group" aria-label="Choose training days per week">
+            {dayOptions.map((d) => (
+              <button
+                type="button"
+                class="opt opt--pill"
+                data-choice="days"
+                data-value={d}
+                data-label={`${d} days`}
+                aria-pressed="false"
+              >
+                <span class="opt__pill-num">{d}</span>
+                <span class="opt__pill-suffix">days</span>
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      </div>
+
+      {/* ---------------- Live preview column ---------------- */}
+      <aside class="build__preview reveal" aria-label="Your plan preview">
+        <div class="plan-preview card" aria-live="polite" aria-atomic="true">
+          <div class="plan-preview__top">
+            <span class="chip chip--lime">Your PULSE plan</span>
+            <span class="plan-preview__progress" data-progress>
+              <span class="sr-only">Choices made:</span>
+              <span data-progress-text>0 of 3</span>
+            </span>
+          </div>
+
+          <div class="plan-preview__bar" aria-hidden="true">
+            <span class="plan-preview__bar-fill" data-progress-bar></span>
+          </div>
+
+          <h3 class="plan-preview__name" data-plan-name>Untitled plan</h3>
+          <p class="plan-preview__sub" data-plan-sub>
+            Pick a goal to start building.
+          </p>
+
+          {/* Weekly schedule */}
+          <div class="plan-preview__section">
+            <p class="plan-preview__section-label">Your week</p>
+            <div class="week" data-week>
+              {weekDays.map((d) => (
+                <span class="week__day" data-day={d}>
+                  <span class="week__cell" aria-hidden="true"></span>
+                  <span class="week__name">{d}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Tags reflecting the user's selections */}
+          <div class="plan-preview__section">
+            <p class="plan-preview__section-label">Your focus &amp; level</p>
+            <div class="plan-preview__tags">
+              <span class="tag" data-tag="goal">
+                <span class="tag__k">Focus</span>
+                <span class="tag__v" data-tag-goal>—</span>
+              </span>
+              <span class="tag" data-tag="level">
+                <span class="tag__k">Level</span>
+                <span class="tag__v" data-tag-level>—</span>
+              </span>
+            </div>
+          </div>
+
+          {/* CTA — "Continue", never "Sign up" */}
+          <div class="plan-preview__cta">
+            <button
+              type="button"
+              class="btn btn--primary btn--lg plan-preview__continue"
+              data-continue
+              disabled
+            >
+              Continue with this plan
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <p class="plan-preview__cta-sub">
+              Save your plan — it's free to start
+            </p>
+          </div>
+        </div>
+
+        <p class="build__hint" data-hint>
+          Each choice makes this plan more <em>yours.</em>
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<script>
+  type Choice = { value: string | null; label: string; accent?: string };
+  type State = {
+    goal: Choice;
+    level: Choice;
+    days: Choice;
+  };
+
+  const section = document.getElementById("build");
+  if (section) {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // --- Element refs ---
+    const optBtns = Array.from(
+      section.querySelectorAll<HTMLButtonElement>(".opt[data-choice]")
+    );
+    const nameEl = section.querySelector<HTMLElement>("[data-plan-name]");
+    const subEl = section.querySelector<HTMLElement>("[data-plan-sub]");
+    const progressText = section.querySelector<HTMLElement>("[data-progress-text]");
+    const progressBar = section.querySelector<HTMLElement>("[data-progress-bar]");
+    const tagGoal = section.querySelector<HTMLElement>("[data-tag-goal]");
+    const tagLevel = section.querySelector<HTMLElement>("[data-tag-level]");
+    const weekCells = Array.from(section.querySelectorAll<HTMLElement>(".week__day"));
+    const continueBtn = section.querySelector<HTMLButtonElement>("[data-continue]");
+    const hintEl = section.querySelector<HTMLElement>("[data-hint]");
+
+    // --- Shared state ---
+    const state: State = {
+      goal: { value: null, label: "" },
+      level: { value: null, label: "" },
+      days: { value: null, label: "" },
+    };
+
+    // --- Plan-name generator: goal + level + days -> a personal-feeling name ---
+    const goalName: Record<string, string> = {
+      fat: "Lean",
+      muscle: "Builder",
+      strong: "Power",
+      move: "Flow",
+    };
+    const levelName: Record<string, string> = {
+      new: "Start",
+      some: "Pro",
+      athlete: "Elite",
+    };
+    function planName(): string {
+      if (!state.goal.value) return "Untitled plan";
+      const base = goalName[state.goal.value] ?? "Custom";
+      const lvl = state.level.value ? levelName[state.level.value] ?? "" : "";
+      const days = state.days.value ? ` · ${state.days.value} days/week` : "";
+      const joined = lvl ? `${base} ${lvl}` : base;
+      return `${joined}${days}`;
+    }
+
+    function planSub(): string {
+      const missing: string[] = [];
+      if (!state.goal.value) missing.push("goal");
+      if (!state.level.value) missing.push("level");
+      if (!state.days.value) missing.push("schedule");
+      if (missing.length === 0) {
+        return "Locked in. Ready when you are.";
+      }
+      if (missing.length === 3) return "Pick a goal to start building.";
+      return `Almost there — choose your ${missing.join(" and ")}.`;
+    }
+
+    // Days-of-week fill pattern. Spreads training days across the week.
+    const fillPatterns: Record<number, number[]> = {
+      3: [0, 2, 4],          // Mon, Wed, Fri
+      4: [0, 1, 3, 5],       // Mon, Tue, Thu, Sat
+      5: [0, 1, 2, 4, 5],    // Mon, Tue, Wed, Fri, Sat
+      6: [0, 1, 2, 3, 4, 5], // Mon–Sat
+    };
+
+    function render() {
+      // Plan name + sub
+      if (nameEl) nameEl.textContent = planName();
+      if (subEl) subEl.textContent = planSub();
+
+      // Progress (3 choices total)
+      const made =
+        (state.goal.value ? 1 : 0) +
+        (state.level.value ? 1 : 0) +
+        (state.days.value ? 1 : 0);
+      if (progressText) progressText.textContent = `${made} of 3`;
+      if (progressBar) progressBar.style.width = `${(made / 3) * 100}%`;
+
+      // Tags
+      if (tagGoal) tagGoal.textContent = state.goal.value ? state.goal.label : "—";
+      if (tagLevel) tagLevel.textContent = state.level.value ? state.level.label : "—";
+
+      // Week cells
+      const accent = state.goal.accent || "var(--lime)";
+      const filled = state.days.value
+        ? new Set(fillPatterns[Number(state.days.value)] ?? [])
+        : new Set<number>();
+      weekCells.forEach((cell, i) => {
+        const on = filled.has(i);
+        cell.classList.toggle("is-on", on);
+        cell.style.setProperty("--accent", accent);
+        const cellInner = cell.querySelector<HTMLElement>(".week__cell");
+        if (cellInner) cellInner.textContent = on ? "✓" : "";
+      });
+
+      // CTA enabled only when complete
+      const complete = made === 3;
+      if (continueBtn) continueBtn.disabled = !complete;
+
+      // Hint nudges toward completion (endowment framing)
+      if (hintEl) {
+        if (complete) {
+          hintEl.innerHTML = "This is <em>your</em> plan — keep it.";
+        } else if (made > 0) {
+          hintEl.innerHTML = `${made} down, ${3 - made} to go — don't leave it unfinished.`;
+        } else {
+          hintEl.innerHTML = "Each choice makes this plan more <em>yours.</em>";
+        }
+      }
+
+      // Apply goal accent to the CTA's glow color when known
+      const preview = section.querySelector<HTMLElement>(".plan-preview");
+      if (preview) preview.style.setProperty("--plan-accent", accent);
+    }
+
+    // --- Selection handling ---
+    optBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const choice = btn.dataset.choice as keyof State;
+        if (!choice) return;
+        const value = btn.dataset.value ?? null;
+        const label = btn.dataset.label ?? "";
+        const accent = btn.dataset.accent;
+
+        // Toggle within the same group: clicking the active choice deselects it.
+        const isAlready = state[choice].value === value;
+        const newVal = isAlready ? null : value;
+
+        state[choice] = { value: newVal, label: newVal ? label : "", accent };
+
+        // Update aria-pressed + is-active within the group.
+        section
+          .querySelectorAll<HTMLButtonElement>(`.opt[data-choice="${choice}"]`)
+          .forEach((b) => {
+            const active = b.dataset.value === newVal;
+            b.setAttribute("aria-pressed", String(active));
+            b.classList.toggle("is-active", active);
+          });
+
+        render();
+      });
+
+      // Keyboard niceties: left/right/up/down move between siblings in the same group.
+      btn.addEventListener("keydown", (e) => {
+        const choice = btn.dataset.choice;
+        if (!choice) return;
+        const group = Array.from(
+          section.querySelectorAll<HTMLButtonElement>(`.opt[data-choice="${choice}"]`)
+        );
+        const idx = group.indexOf(btn);
+        let next = -1;
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (idx + 1) % group.length;
+        else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
+          next = (idx - 1 + group.length) % group.length;
+        if (next >= 0) {
+          e.preventDefault();
+          group[next].focus();
+        }
+      });
+    });
+
+    // Continue CTA — placeholder action (parent wires real flow).
+    continueBtn?.addEventListener("click", () => {
+      if (continueBtn.disabled) return;
+      // Keep the endowment framing in the brief: this continues, never "signs up".
+      continueBtn.blur();
+    });
+
+    // Initial paint.
+    render();
+
+    // Re-run once mounted, in case fonts/aria-live need settling.
+    if (!reduce) {
+      requestAnimationFrame(() => {
+        const pv = section.querySelector<HTMLElement>(".plan-preview");
+        pv?.classList.add("is-ready");
+      });
+    }
+  }
+</script>
+
+<style>
+  .onboarding { position: relative; overflow: hidden; }
+
+  .build__glow {
+    position: absolute;
+    top: -10%; right: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(212, 255, 58, 0.10), transparent 65%);
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .onboarding .container { position: relative; z-index: 1; }
+
+  /* ---------- Two-column layout ---------- */
+  .build {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .build__choices {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  /* ---------- Step / fieldset ---------- */
+  .step {
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: border-color 0.25s ease, background 0.25s ease;
+  }
+  .step:focus-within { border-color: rgba(212, 255, 58, 0.35); background: rgba(255, 255, 255, 0.035); }
+
+  .step__legend {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+    margin-bottom: 18px;
+  }
+  .step__index {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--lime);
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(212, 255, 58, 0.12);
+    border: 1px solid rgba(212, 255, 58, 0.3);
+  }
+  .step__label {
+    font-family: var(--display);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--text);
+  }
+
+  /* ---------- Option grids ---------- */
+  .step__options { display: grid; gap: 12px; }
+
+  .step__options--cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .step__options--rows {
+    grid-template-columns: 1fr;
+  }
+  .step__options--pills {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* ---------- Base option button ---------- */
+  .opt {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text);
+    padding: 16px;
+    font-weight: 600;
+    transition: transform 0.2s var(--ease-out), border-color 0.2s var(--ease-out),
+                background 0.2s var(--ease-out), box-shadow 0.25s var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .opt:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong);
+    background: var(--bg-elev-2);
+  }
+  .opt:focus-visible {
+    outline: none;
+    border-color: var(--accent, var(--lime));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, var(--lime)) 30%, transparent);
+  }
+  .opt:active { transform: translateY(0); }
+
+  /* Selected (endowment: each selection visibly becomes theirs) */
+  .opt.is-active {
+    --accent: var(--lime);
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 9%, var(--bg-elev-2));
+    box-shadow: 0 14px 36px -18px color-mix(in srgb, var(--accent) 60%, transparent),
+                inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  /* ---------- Check mark ---------- */
+  .opt__check {
+    display: inline-grid;
+    place-items: center;
+    width: 24px; height: 24px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    border: 1.5px solid var(--border-strong);
+    color: transparent;
+    background: rgba(255, 255, 255, 0.04);
+    transition: background 0.2s var(--ease-out), border-color 0.2s var(--ease-out),
+                color 0.2s var(--ease-out), transform 0.2s var(--ease-spring);
+  }
+  .opt.is-active .opt__check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #08080b;
+    transform: scale(1.05);
+  }
+  /* Row variant uses a dot */
+  .opt__check--dot { border-radius: 999px; }
+  .opt__check--dot::after {
+    content: "";
+    width: 8px; height: 8px;
+    border-radius: 999px;
+    background: transparent;
+    transition: background 0.2s var(--ease-out);
+  }
+  .opt--row.is-active .opt__check--dot::after { background: var(--accent); }
+  .opt--row.is-active .opt__check {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    border-color: var(--accent);
+  }
+
+  /* ---------- Card variant (Step 1) ---------- */
+  .opt--card {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 14px;
+  }
+  .opt--card .opt__check {
+    position: absolute;
+    top: 14px; right: 14px;
+  }
+  .opt__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 46px; height: 46px;
+    border-radius: 13px;
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    color: var(--accent);
+  }
+  .opt__text {
+    font-family: var(--display);
+    font-size: 16px;
+    letter-spacing: -0.01em;
+  }
+  .opt--row { padding: 16px 18px; }
+  .opt__row-main { display: flex; flex-direction: column; gap: 3px; }
+  .opt__note {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Pill variant (Step 3) ---------- */
+  .opt--pill {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 16px 8px;
+    text-align: center;
+  }
+  .opt__pill-num {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .opt__pill-suffix {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .opt--pill.is-active { --accent: var(--lime); }
+  .opt--pill.is-active .opt__pill-suffix { color: var(--accent); }
+
+  /* ============================================================
+     Live preview panel
+     ============================================================ */
+  .build__preview {
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .plan-preview {
+    --plan-accent: var(--lime);
+    padding: 26px;
+    background: linear-gradient(180deg, var(--bg-elev-2), var(--bg-elev));
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow);
+    transition: box-shadow 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+  }
+  .plan-preview.is-ready {
+    box-shadow: var(--shadow),
+                0 0 60px -28px color-mix(in srgb, var(--plan-accent) 55%, transparent);
+  }
+  .plan-preview::before {
+    background: radial-gradient(120% 80% at 50% -10%,
+      color-mix(in srgb, var(--plan-accent) 14%, transparent), transparent 60%);
+    opacity: 1;
+  }
+
+  .plan-preview__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+  }
+  .plan-preview__progress {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  .plan-preview__bar {
+    margin-top: 14px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+  .plan-preview__bar-fill {
+    display: block;
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--lime), var(--blue));
+    transition: width 0.4s var(--ease-out);
+  }
+
+  .plan-preview__name {
+    font-family: var(--display);
+    font-size: clamp(22px, 2.6vw, 28px);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-top: 18px;
+    position: relative;
+    z-index: 1;
+  }
+  .plan-preview__sub {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-top: 6px;
+    min-height: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .plan-preview__section {
+    margin-top: 22px;
+    position: relative;
+    z-index: 1;
+  }
+  .plan-preview__section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  /* ---------- Week grid ---------- */
+  .week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+  .week__day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .week__cell {
+    width: 100%;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 800;
+    color: #08080b;
+    transition: background 0.25s var(--ease-out), border-color 0.25s var(--ease-out),
+                transform 0.25s var(--ease-spring);
+  }
+  .week__day.is-on .week__cell {
+    background: var(--accent, var(--lime));
+    border-color: var(--accent, var(--lime));
+    transform: scale(1.04);
+    box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--accent, var(--lime)) 70%, transparent);
+  }
+  .week__name {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+  }
+  .week__day.is-on .week__name { color: var(--text); }
+
+  /* ---------- Tags ---------- */
+  .plan-preview__tags {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .tag {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+  }
+  .tag__k {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .tag__v {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  /* ---------- CTA ---------- */
+  .plan-preview__cta {
+    margin-top: 26px;
+    position: relative;
+    z-index: 1;
+  }
+  .plan-preview__continue {
+    width: 100%;
+  }
+  .plan-preview__continue:disabled {
+    --btn-bg: rgba(255, 255, 255, 0.07);
+    --btn-fg: var(--text-dim);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+  }
+  .plan-preview__continue:disabled::after { display: none; }
+  .plan-preview__continue:not(:disabled) {
+    box-shadow: 0 18px 44px -16px color-mix(in srgb, var(--lime) 60%, transparent);
+  }
+  .plan-preview__cta-sub {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Endowment hint ---------- */
+  .build__hint {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 0 8px;
+  }
+  .build__hint em {
+    font-style: normal;
+    color: var(--lime);
+    font-weight: 700;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 980px) {
+    .build { grid-template-columns: 1fr; }
+    .build__preview { position: static; order: 2; }
+    .build__choices { order: 1; }
+  }
+  @media (max-width: 560px) {
+    .step { padding: 20px 18px; }
+    .step__options--cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .step__options--pills { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .opt--pill { padding: 12px 4px; }
+    .opt__pill-num { font-size: 24px; }
+    .week { gap: 4px; }
+    .week__name { font-size: 9px; }
+    .plan-preview__tags { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .opt, .week__cell, .plan-preview__bar-fill, .plan-preview, .step { transition: none; }
+    .week__day.is-on .week__cell { transform: none; }
+  }
+</style>

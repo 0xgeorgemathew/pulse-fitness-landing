@@ -65,6 +65,15 @@
   /* Refined motion easing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Cinematic motion tokens */
+  --dur-fast: 0.18s;
+  --dur: 0.3s;
+  --dur-slow: 0.6s;
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  /* --ease-expo mirrors --ease-out for the same expo curve; kept as an alias
+     so components can opt in by feel without coupling to --ease-out. */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ---------- Reset ---------- */
@@ -194,6 +203,11 @@ ul { list-style: none; }
   box-shadow: var(--glow-lime);
 }
 .btn--primary:hover { box-shadow: 0 0 56px rgba(212, 255, 58, 0.55); }
+/* Cinematic micro-interaction: gentle scale + intensified lime glow on hover. */
+.btn--primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 64px rgba(212, 255, 58, 0.7), 0 0 24px rgba(212, 255, 58, 0.45);
+}
 /* Shimmer sweep on hover */
 .btn--primary::after {
   content: "";
@@ -298,6 +312,10 @@ ul { list-style: none; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
   .reveal { opacity: 1; transform: none; }
+  /* New cinematic utilities: keep visuals stable, drop any motion/transform. */
+  .shine::after { transform: translateX(-120%) !important; }
+  .lift-on-hover:hover { transform: none !important; }
+  .btn--primary:hover { transform: translateY(-2px) !important; }
 }
 
 /* ---------- Glass utility ---------- */
@@ -307,6 +325,81 @@ ul { list-style: none; }
   backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow);
+}
+
+/* ---------- Cinematic duotone overlay ----------
+   Wrap any media-bearing element (card, figure, tile) in `.duotone` to tint
+   child images with a cinematic duotone. Components override the per-card
+   strength and tint color by setting `--duotone-color` and `--duotone-strength`
+   inline or via modifier classes:
+     --duotone-color:     tint hue (default: var(--lime))
+     --duotone-strength:  overlay opacity 0–1 (default: 0.3) */
+.duotone {
+  position: relative;
+  isolation: isolate;
+}
+.duotone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--duotone-color, var(--lime));
+  opacity: var(--duotone-strength, 0.3);
+  mix-blend-mode: color;
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease-out);
+  z-index: 2;
+}
+/* Lift the tint on hover so the underlying image reads more clearly. */
+.duotone:hover::after {
+  opacity: calc(var(--duotone-strength, 0.3) * 0.4);
+}
+
+/* ---------- Premium gradient text ----------
+   Clips the element's background gradient to its glyphs. Defaults to the
+   signature lime→blue gradient; override via `--grad` to retheme inline. */
+.grad-text {
+  background: var(--grad, var(--grad-lime));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Shine sweep on hover ----------
+   Apply `.shine` to any element to play a sweeping highlight across it on
+   hover. Uses a translateX pseudo-element sweep; disabled under
+   prefers-reduced-motion (see global reduced-motion block). */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+.shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 80%
+  );
+  transform: translateX(-120%);
+  transition: transform var(--dur-slow) var(--ease-expo);
+  pointer-events: none;
+}
+.shine:hover::after {
+  transform: translateX(120%);
+}
+
+/* ---------- Lift on hover ---------- */
+.lift-on-hover {
+  transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
+}
+.lift-on-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
 }
 
 /* ---------- Film-grain / noise texture overlay ---------- */
