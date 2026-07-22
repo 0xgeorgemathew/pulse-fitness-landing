@@ -6,6 +6,9 @@ An energetic, dark-mode landing page for a fictional fitness app called **PULSE*
 Built with [Astro](https://astro.build) and deployed to **Cloudflare Workers** via the
 `@astrojs/cloudflare` adapter.
 
+🌐 **Live:** https://pulse-fitness.mathew.workers.dev
+📦 **Repo:** https://github.com/0xgeorgemathew/pulse-fitness-landing
+
 ![Built with Astro](https://img.shields.io/badge/Built%20with-Astro-FF5D01?logo=astro&logoColor=white)
 ![Deployed on Cloudflare Workers](https://img.shields.io/badge/Deployed%20on-Cloudflare%20Workers-F38020?logo=cloudflare&logoColor=white)
 
